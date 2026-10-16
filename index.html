@@ -342,24 +342,6 @@ tr.clickable { cursor: pointer; }
       <div class="ver-info">Tampilan v2.7 • Skrip: <span id="verJs" class="ver-bad">lama / belum diperbarui ✗</span><br><a href="#" id="linkServer" class="d-none" onclick="changeServer();return false;">Ubah alamat server</a></div>
     </div>
   </div>
-  
-  // ───────── Suara konfirmasi absen ─────────
-function speakAbsen() {
-  try {
-    if (!('speechSynthesis' in window)) return;
-    const synth = window.speechSynthesis;
-    synth.cancel();
-    const u = new SpeechSynthesisUtterance('Absen diterima. Terima kasih.');
-    u.lang = 'id-ID'; u.rate = 0.95; u.pitch = 1; u.volume = 1;
-    const v = synth.getVoices().find((x) => x.lang && x.lang.toLowerCase().replace('_', '-').indexOf('id') === 0);
-    if (v) u.voice = v;
-    synth.speak(u);
-  } catch (e) { /* suara bersifat tambahan, abaikan jika gagal */ }
-}
-// Browser HP memblokir suara sebelum ada sentuhan pertama; "buka kunci" sekali secara senyap
-['click', 'touchstart'].forEach((ev) => document.addEventListener(ev, () => {
-  try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u); } catch (e) { /* abaikan */ }
-}, { once: true, passive: true }));
 
   <!-- ═════════ KIOSK ABSEN WAJAH (tampilan mobile) ═════════ -->
   <div id="kioskView" class="kiosk-view d-none">
@@ -894,7 +876,7 @@ const HOSTED = !(typeof google !== 'undefined' && google.script && google.script
 const SERVER_RE = /^https:\/\/script\.google\.com\/(a\/macros\/[^/]+\/|macros\/)s\/[A-Za-z0-9_-]+\/exec$/;
 // ▼▼ ISI SATU BARIS INI sebelum meng-upload versi hosting: URL Web App Apps Script Anda (berakhiran /exec).
 // Jika diisi, pelayan tidak perlu menempelkan URL sendiri. Dibiarkan kosong pun tetap bisa: aplikasi akan menanyakannya.
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwW73wfpLTZi4hSZ9-8mlVOqaZKxl1GB7FD_FYYqjUQZcbyvfpsRz_uziRefgs-HpELxg/exec';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbxsxTcjnwlq6O4p8PO1WrqYnwygT0xxs_zcFTEh78Ona3lCZmPYqs9bYQrUG6EFQ7RKgw/exec';
 let API_URL = '';
 
 function resolveServerUrl(forcePrompt) {
@@ -1892,7 +1874,24 @@ function snapFrame(video) {
   ctx.fillStyle = '#fff'; ctx.font = '14px sans-serif'; ctx.fillText(stamp, 8, cv.height - 9);
   return cv.toDataURL('image/jpeg', 0.72);
 }
-
+// ───────── Suara konfirmasi absen ─────────
+function speakAbsen() {
+  try {
+    if (!('speechSynthesis' in window)) return;
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance('Absen diterima. Terima kasih.');
+    u.lang = 'id-ID'; u.rate = 0.95; u.pitch = 1; u.volume = 1;
+    const v = synth.getVoices().find((x) => x.lang && x.lang.toLowerCase().replace('_', '-').indexOf('id') === 0);
+    if (v) u.voice = v;
+    synth.speak(u);
+  } catch (e) { /* suara bersifat tambahan, abaikan jika gagal */ }
+}
+// Browser HP memblokir suara sebelum ada sentuhan pertama; "buka kunci" sekali secara senyap
+['click', 'touchstart'].forEach((ev) => document.addEventListener(ev, () => {
+  try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u); } catch (e) { /* abaikan */ }
+}, { once: true, passive: true }));
+	
 // ───────── Kiosk absen wajah (tampilan mobile) ─────────
 const K = { running: false, busy: false, stable: 0, noFace: 0, needLeave: false, stream: null, timer: null, clock: null, watch: null, pos: null,
   noLive: false, identCount: 0, geoErr: '', engineReady: false, engineErr: '', resultTimer: null, facing: 'user', ident: null, identBusy: false, identAt: 0, whoMsg: '', locs: [], loop: false, pane: 'kPaneAbsen' };
