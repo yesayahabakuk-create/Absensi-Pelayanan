@@ -342,6 +342,24 @@ tr.clickable { cursor: pointer; }
       <div class="ver-info">Tampilan v2.7 • Skrip: <span id="verJs" class="ver-bad">lama / belum diperbarui ✗</span><br><a href="#" id="linkServer" class="d-none" onclick="changeServer();return false;">Ubah alamat server</a></div>
     </div>
   </div>
+  
+  // ───────── Suara konfirmasi absen ─────────
+function speakAbsen() {
+  try {
+    if (!('speechSynthesis' in window)) return;
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance('Absen diterima. Terima kasih.');
+    u.lang = 'id-ID'; u.rate = 0.95; u.pitch = 1; u.volume = 1;
+    const v = synth.getVoices().find((x) => x.lang && x.lang.toLowerCase().replace('_', '-').indexOf('id') === 0);
+    if (v) u.voice = v;
+    synth.speak(u);
+  } catch (e) { /* suara bersifat tambahan, abaikan jika gagal */ }
+}
+// Browser HP memblokir suara sebelum ada sentuhan pertama; "buka kunci" sekali secara senyap
+['click', 'touchstart'].forEach((ev) => document.addEventListener(ev, () => {
+  try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u); } catch (e) { /* abaikan */ }
+}, { once: true, passive: true }));
 
   <!-- ═════════ KIOSK ABSEN WAJAH (tampilan mobile) ═════════ -->
   <div id="kioskView" class="kiosk-view d-none">
