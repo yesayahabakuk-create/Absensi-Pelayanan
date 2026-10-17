@@ -6,23 +6,27 @@
   <title>Absensi Pelayan Tuhan</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
 /* ── Tema Terang (default) ── */
 :root, [data-theme="light"] {
-  --bg: #f4f2ec; --surface: #ffffff; --surface-2: #faf8f3;
-  --text: #1f2037; --muted: #6b6d86; --border: #e6e2d6;
-  --brand: #3b3fa8; --brand-2: #6a4fd8; --brand-soft: rgba(59,63,168,.10);
-  --gold: #c8962e;
-  --c-success: #12a36b; --c-warning: #f0a30a; --c-danger: #e5484d; --c-info: #1d9bd1; --c-purple: #8e4ec6;
-  --side-1: #20215c; --side-2: #14153d; --side-text: #b8b9e0;
-  --shadow: 0 4px 18px rgba(32,33,92,.08); --radius: 16px;
+  /* Sacred Elegance & Liturgical Modernism */
+  --bg: #fbf8ff; --surface: #ffffff; --surface-2: #f5f2ff;
+  --text: #191a2d; --muted: #54566b; --border: #e4e1f0; --hair: rgba(26,27,75,.08);
+  --brand: #1a1b4b; --brand-2: #2e2d88; --brand-soft: rgba(26,27,75,.08);
+  --g1: #1a1b4b; --g2: #2e2d88;
+  --gold: #d4af37; --gold-ink: #735c00;
+  --c-success: #1b8755; --c-warning: #d97706; --c-danger: #c53030; --c-info: #2662d9; --c-purple: #4a329a;
+  --side-1: #1a1b4b; --side-2: #0c0d2b; --side-text: #b9bae0;
+  --shadow: 0 4px 20px -2px rgba(26,27,75,.07); --radius: 18px;
   --bs-body-bg: var(--bg); --bs-body-color: var(--text);
 }
 [data-theme="dark"] {
-  --bg: #0e0f24; --surface: #181a38; --surface-2: #1f2145; --text: #ecebff; --muted: #9a9cc4; --border: #2d3060;
-  --brand: #8b8ff5; --brand-2: #a98bff; --brand-soft: rgba(139,143,245,.16);
-  --gold: #e3b24c;
+  --bg: #0c0d24; --surface: #161838; --surface-2: #1d1f47; --text: #eceaff; --muted: #a3a5cc; --border: #2b2e62; --hair: rgba(255,255,255,.08);
+  --brand: #b3b4f4; --brand-2: #c9c3ff; --brand-soft: rgba(179,180,244,.15);
+  --g1: #3b3da6; --g2: #5b49c8;
+  --gold: #e5c158; --gold-ink: #e5c158;
+  --c-success: #4fd69c; --c-warning: #f0a30a; --c-danger: #f26b6b; --c-info: #78a8ff; --c-purple: #b39cff;
   --side-1: #0b0c1f; --side-2: #090a18; --side-text: #8c8eb8;
   --shadow: 0 4px 18px rgba(0,0,0,.4);
   --bs-body-bg: var(--bg); --bs-body-color: var(--text);
@@ -30,7 +34,7 @@
 *, *::before, *::after { transition: background-color .25s ease, color .25s ease, border-color .25s ease; }
 html { scroll-padding-top: 70px; }
 body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
-h1, h2, h3, .page-title, .clock, .pin-big { font-family: 'Fraunces', Georgia, serif; }
+h1, h2, h3, .page-title, .clock, .pin-big { font-family: 'EB Garamond', Georgia, serif; }
 .text-muted { color: var(--muted) !important; }
 
 /* ── Loading ── */
@@ -39,7 +43,7 @@ h1, h2, h3, .page-title, .clock, .pin-big { font-family: 'Fraunces', Georgia, se
 
 /* ── Brand ── */
 .brand-mark { width: 64px; height: 64px; border-radius: 20px; display: grid; place-items: center; font-size: 2rem; color: #fff; margin: 0 auto 12px;
-  background: linear-gradient(135deg, var(--brand), var(--brand-2)); box-shadow: 0 8px 22px rgba(59,63,168,.35); }
+  background: linear-gradient(135deg, var(--g1), var(--g2)); box-shadow: 0 8px 22px rgba(59,63,168,.35); }
 .brand-mark.sm { width: 42px; height: 42px; border-radius: 13px; font-size: 1.3rem; margin: 0; flex: none; }
 .brand-mark i { color: #ffd77a; }
 
@@ -53,7 +57,7 @@ h1, h2, h3, .page-title, .clock, .pin-big { font-family: 'Fraunces', Georgia, se
 .auth-tabs { background: var(--surface-2); border-radius: 12px; padding: 4px; margin-bottom: 1.25rem; display: flex; }
 .auth-tabs .nav-item { flex: 1; }
 .auth-tabs .nav-link { width: 100%; color: var(--muted); font-weight: 600; border-radius: 9px; }
-.auth-tabs .nav-link.active { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; }
+.auth-tabs .nav-link.active { background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; }
 .theme-link { display: block; margin: .75rem auto 0; color: var(--muted); text-decoration: none; font-size: .85rem; }
 
 /* ── Form & tombol ── */
@@ -62,7 +66,7 @@ h1, h2, h3, .page-title, .clock, .pin-big { font-family: 'Fraunces', Georgia, se
 .input-group-text { background: var(--surface-2); color: var(--muted); border-color: var(--border); }
 .form-label { font-weight: 600; }
 .btn { border-radius: 10px; font-weight: 600; }
-.btn-brand { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; border: 0; padding: .6rem 1.1rem; }
+.btn-brand { background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; border: 0; padding: .6rem 1.1rem; }
 .btn-brand:hover, .btn-brand:focus { color: #fff; filter: brightness(1.08); }
 .btn-brand:disabled { opacity: .6; color: #fff; }
 .btn-icon { background: transparent; border: 0; font-size: 1.5rem; color: var(--text); padding: .25rem .5rem; }
@@ -74,13 +78,13 @@ h1, h2, h3, .page-title, .clock, .pin-big { font-family: 'Fraunces', Georgia, se
 .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 264px; z-index: 1040; display: flex; flex-direction: column;
   background: linear-gradient(180deg, var(--side-1), var(--side-2)); color: var(--side-text); }
 .sidebar-header { display: flex; gap: .75rem; align-items: center; padding: 1.25rem; border-bottom: 1px solid rgba(255,255,255,.08); }
-.sidebar-title { color: #fff; font-weight: 700; line-height: 1.2; font-family: 'Fraunces', serif; }
+.sidebar-title { color: #fff; font-weight: 700; line-height: 1.2; font-family: 'EB Garamond', serif; }
 .sidebar-role { font-size: .75rem; color: var(--gold); font-weight: 600; }
 .sidebar-nav { list-style: none; margin: 0; padding: .75rem; flex: 1; overflow-y: auto; }
 .sidebar-nav a { display: flex; align-items: center; gap: .8rem; padding: .7rem .9rem; border-radius: 12px; color: var(--side-text); text-decoration: none; font-size: .92rem; font-weight: 500; margin-bottom: 2px; }
 .sidebar-nav a i { font-size: 1.1rem; }
 .sidebar-nav a:hover { background: rgba(255,255,255,.07); color: #fff; }
-.sidebar-nav a.active { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; box-shadow: 0 6px 16px rgba(0,0,0,.25); }
+.sidebar-nav a.active { background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; box-shadow: 0 6px 16px rgba(0,0,0,.25); }
 .sidebar-nav .nav-badge { margin-left: auto; background: var(--c-danger); color: #fff; font-size: .7rem; border-radius: 99px; padding: 1px 7px; }
 .sidebar-footer { padding: 1rem; border-top: 1px solid rgba(255,255,255,.08); }
 .user-chip { color: #fff; font-size: .85rem; margin-bottom: .6rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -110,7 +114,7 @@ tr.clickable { cursor: pointer; }
 
 /* ── KPI ── */
 .kpi { border-radius: var(--radius); padding: 1.1rem 1.2rem; color: #fff; position: relative; overflow: hidden; box-shadow: var(--shadow); min-height: 104px; }
-.kpi .v { font-family: 'Fraunces', serif; font-size: 2.2rem; font-weight: 700; line-height: 1; }
+.kpi .v { font-family: 'EB Garamond', serif; font-size: 2.2rem; font-weight: 700; line-height: 1; }
 .kpi .l { font-size: .82rem; opacity: .95; margin-top: .4rem; font-weight: 600; }
 .kpi i { position: absolute; right: 12px; bottom: 6px; font-size: 3.2rem; opacity: .22; }
 .kpi.k-brand { background: linear-gradient(135deg, #3b3fa8, #6a4fd8); }
@@ -119,7 +123,7 @@ tr.clickable { cursor: pointer; }
 .kpi.k-danger { background: linear-gradient(135deg, #cf3a40, #f17a6e); }
 .kpi.k-info { background: linear-gradient(135deg, #187fae, #4cc3ee); }
 .kpi.k-purple { background: linear-gradient(135deg, #7338ad, #b57be0); }
-.insight-card { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); height: 100%; }
+.insight-card { background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); height: 100%; }
 .insight-card h6 { font-weight: 700; }
 .insight-card ul { padding-left: 1.1rem; margin: 0; }
 .insight-card li { margin-bottom: .55rem; font-size: .88rem; }
@@ -138,7 +142,7 @@ tr.clickable { cursor: pointer; }
 
 /* ── Filter pill ── */
 .pill { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 99px; padding: .3rem .85rem; font-size: .8rem; font-weight: 600; cursor: pointer; }
-.pill.active { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; border-color: transparent; }
+.pill.active { background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; border-color: transparent; }
 .day-check { display: inline-flex; }
 .day-check input { display: none; }
 .day-check span { border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: .4rem .75rem; font-size: .85rem; font-weight: 600; cursor: pointer; user-select: none; }
@@ -148,7 +152,7 @@ tr.clickable { cursor: pointer; }
 .hero { border-radius: 22px; padding: 1.5rem 1.25rem; color: #fff; text-align: center; box-shadow: var(--shadow);
   background: radial-gradient(500px 220px at 85% -20%, rgba(255,215,122,.45), transparent), linear-gradient(135deg, #2a2d82, #6a4fd8); }
 .hero .hello { opacity: .85; font-size: .9rem; }
-.hero .name { font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 700; }
+.hero .name { font-family: 'EB Garamond', serif; font-size: 1.4rem; font-weight: 700; }
 .clock { font-size: 3rem; font-weight: 700; letter-spacing: 1px; line-height: 1.1; margin: .5rem 0 .1rem; font-variant-numeric: tabular-nums; }
 .hero .date { opacity: .9; font-size: .9rem; }
 .act-btn { border: 0; border-radius: 20px; padding: 1.25rem .75rem; width: 100%; color: #fff; font-weight: 700; font-size: 1.05rem; display: flex; flex-direction: column; align-items: center; gap: .35rem; box-shadow: var(--shadow); }
@@ -207,10 +211,10 @@ tr.clickable { cursor: pointer; }
 .kiosk-overlay { position: absolute; inset: auto 12px 12px 12px; border-radius: 16px; padding: .8rem 1rem; color: #fff; text-align: center; animation: fade .25s ease; }
 .kiosk-overlay.good { background: rgba(14,143,93,.94); }
 .kiosk-overlay.bad { background: rgba(207,58,64,.94); }
-.kiosk-overlay .big { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 700; }
+.kiosk-overlay .big { font-family: 'EB Garamond', serif; font-size: 1.15rem; font-weight: 700; }
 .k-item { display: flex; align-items: center; gap: .75rem; padding: .6rem 0; border-bottom: 1px dashed var(--border); }
 .k-item:last-child { border: 0; }
-.k-avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; flex: none; background: linear-gradient(135deg, var(--brand), var(--brand-2)); }
+.k-avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; flex: none; background: linear-gradient(135deg, var(--g1), var(--g2)); }
 .k-meta { min-width: 0; flex: 1; }
 .k-meta b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .k-meta small { color: var(--muted); }
@@ -224,7 +228,7 @@ tr.clickable { cursor: pointer; }
 .k-clockchip { display: inline-flex; align-items: center; gap: .45rem; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .45rem 1rem; font-weight: 700; margin: .5rem 0 .75rem; font-variant-numeric: tabular-nums; }
 .k-seg { display: flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 18px; padding: 4px; margin-bottom: .9rem; }
 .k-seg button { flex: 1; border: 0; background: transparent; color: var(--muted); font-weight: 700; border-radius: 14px; padding: .7rem .4rem; font-size: .88rem; }
-.k-seg button.active { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; box-shadow: 0 4px 12px rgba(59,63,168,.3); }
+.k-seg button.active { background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; box-shadow: 0 4px 12px rgba(59,63,168,.3); }
 .kiosk-cam { max-width: none; aspect-ratio: 3 / 4; border-radius: 28px; margin: 0; }
 .kiosk-cam .face-ring { box-shadow: none; border: 2px dashed rgba(255,255,255,.38); width: 70%; }
 .kiosk-cam .face-ring.ok { border: 2px solid #36c98a; }
@@ -252,8 +256,6 @@ tr.clickable { cursor: pointer; }
 
 .k-cammsg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 2rem 1.5rem; color: #e9e9ff; font-size: .95rem; font-weight: 600; line-height: 1.5; background: rgba(8,9,30,.55); z-index: 1; }
 .k-cammsg.d-none { display: none; }
-.k-voice { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--brand); font-size: 1.2rem; display: grid; place-items: center; margin: .5rem 0 .75rem; flex: none; }
-.k-voice.off { color: var(--muted); }
 .k-time { font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; }
 
 /* ── Responsif ── */
@@ -268,6 +270,172 @@ tr.clickable { cursor: pointer; }
   .table td, .table th { padding: .6rem .5rem; }
   .kpi .v { font-size: 1.8rem; }
 }
+
+/* ═══════════ Tema "Sacred Elegance" v3 (indigo kerajaan + emas) ═══════════ */
+body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+h1, h2, h3, .page-title, .sidebar-title, .auth-brand h1, .kpi .v, .hero .name, .k-title { letter-spacing: -.01em; }
+.clock, .k-time, .k-stamp { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+.auth-view { background: radial-gradient(1200px 500px at 10% -10%, rgba(46,45,136,.20), transparent), radial-gradient(900px 500px at 100% 110%, rgba(212,175,55,.20), transparent), var(--bg); }
+.card, .auth-card { border: 1px solid var(--hair); box-shadow: 0 4px 20px -2px rgba(26,27,75,.07); }
+[data-theme="dark"] .card, [data-theme="dark"] .auth-card { border-color: var(--border); }
+.brand-mark { box-shadow: 0 8px 22px rgba(26,27,75,.35); border: 1px solid rgba(212,175,55,.45); }
+.brand-mark i { color: #e9c349; }
+.btn-brand:focus-visible { box-shadow: 0 0 0 .22rem rgba(212,175,55,.5); }
+.sidebar-nav a.active { background: linear-gradient(135deg, #2e2d88, #4a329a); box-shadow: 0 6px 16px rgba(0,0,0,.25); }
+.sidebar-nav a.active i { color: #e9c349; }
+.card-title i { color: var(--gold-ink); }
+.topbar { border-bottom: 1px solid transparent; }
+
+/* KPI */
+.kpi.k-brand { background: linear-gradient(135deg, #1a1b4b, #2e2d88); }
+.kpi.k-success { background: linear-gradient(135deg, #1b8755, #36b37e); }
+.kpi.k-warning { background: linear-gradient(135deg, #c96a05, #f0b429); }
+.kpi.k-danger { background: linear-gradient(135deg, #c53030, #e57373); }
+.kpi.k-info { background: linear-gradient(135deg, #2662d9, #5b8def); }
+.kpi.k-purple { background: linear-gradient(135deg, #4a329a, #8e78e3); }
+.insight-card { background: linear-gradient(135deg, #1a1b4b, #2e2d88); border: 1px solid rgba(212,175,55,.3); }
+
+/* Lencana status */
+.st { border: 1px solid transparent; letter-spacing: .3px; }
+.st-success { background: #EAF8F0; color: #1B8755; border-color: #C6ECD7; }
+.st-info { background: #EBF1FD; color: #2662D9; border-color: #CBDDFB; }
+.st-warning { background: #FEF3C7; color: #B45F06; border-color: #FDE4A1; }
+.st-danger { background: #FDE8E8; color: #C53030; border-color: #F8BEBE; }
+.st-purple { background: #EEE9FB; color: #4A329A; border-color: #D9CFF5; }
+.st-muted { background: #F5F5F4; color: #78716C; border-color: #E7E5E4; }
+[data-theme="dark"] .st-success { background: rgba(79,214,156,.14); color: #6fe3b0; border-color: rgba(79,214,156,.3); }
+[data-theme="dark"] .st-info { background: rgba(120,168,255,.14); color: #8db6ff; border-color: rgba(120,168,255,.3); }
+[data-theme="dark"] .st-warning { background: rgba(240,163,10,.16); color: #f7c548; border-color: rgba(240,163,10,.3); }
+[data-theme="dark"] .st-danger { background: rgba(242,107,107,.15); color: #ff8f8f; border-color: rgba(242,107,107,.3); }
+[data-theme="dark"] .st-purple { background: rgba(179,156,255,.15); color: #c3b2ff; border-color: rgba(179,156,255,.3); }
+[data-theme="dark"] .st-muted { background: rgba(160,160,190,.14); color: #b8b8d4; border-color: rgba(160,160,190,.25); }
+
+/* Tombol absen emas */
+.act-in { background: linear-gradient(90deg, #d4af37, #f1c948 55%, #e4be3e); color: #1a1b4b; border: 1px solid #f3dc8c; box-shadow: 0 6px 20px rgba(212,175,55,.45); }
+.act-in small { opacity: .8; }
+.geo-box { background: var(--surface-2); border: 1px solid var(--hair); }
+
+/* Navigasi bawah pelayan: kapsul melayang */
+.bottom-nav { left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); max-width: 460px; margin: 0 auto; border-radius: 999px; padding: .35rem .5rem;
+  background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--hair); box-shadow: 0 12px 36px -6px rgba(15,18,50,.2); }
+.bottom-nav a.active { color: var(--text); }
+.bottom-nav a.active i { background: var(--g1); color: #f1c948; border-radius: 999px; padding: .1rem .85rem; width: fit-content; margin: 0 auto; }
+
+/* ───────── Beranda pelayan ───────── */
+.home-greet .eyebrow { font-size: .68rem; letter-spacing: .14em; font-weight: 800; color: var(--gold-ink); text-transform: uppercase; }
+.home-greet h1 { font-size: 1.8rem; font-weight: 600; margin: .1rem 0 .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.idcard { display: flex; align-items: center; gap: .9rem; padding: 1rem; border-radius: 24px; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, var(--surface), var(--surface-2)); border: 1px solid var(--hair); box-shadow: 0 10px 30px -8px rgba(18,22,60,.08); }
+.idcard::after { content: ''; position: absolute; right: -40px; top: -40px; width: 150px; height: 150px; border-radius: 50%; background: radial-gradient(circle, rgba(212,175,55,.22), transparent 70%); pointer-events: none; }
+.idcard .av { width: 64px; height: 64px; border-radius: 20px; padding: 2px; flex: none; background: linear-gradient(135deg, #e9c349, #a9aaf0 60%, #6a5fd0); }
+.idcard .av b { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 18px; background: linear-gradient(135deg, #1a1b4b, #2e2d88); color: #e9c349; font-family: 'EB Garamond', serif; font-size: 1.9rem; font-weight: 700; }
+.idcard .idtxt { min-width: 0; flex: 1; }
+.idcard .nm { font-family: 'EB Garamond', serif; font-size: 1.3rem; font-weight: 700; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.idcard .rl { color: var(--muted); font-size: .85rem; }
+.pill-aktif { display: inline-flex; align-items: center; gap: .35rem; flex: none; padding: .22rem .7rem; border-radius: 99px; font-size: .72rem; font-weight: 800; color: #6b5200; background: linear-gradient(90deg, rgba(212,175,55,.2), rgba(241,201,72,.32)); border: 1px solid rgba(212,175,55,.55); }
+.pill-aktif i { width: 6px; height: 6px; border-radius: 50%; background: #d4af37; }
+[data-theme="dark"] .pill-aktif { color: #f1d27a; }
+.statusbanner { margin-top: 1rem; border-radius: 24px; padding: 1rem; color: #fff; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #0c0d2b, #14163f 55%, #1c1d4e); border: 1px solid rgba(99,102,241,.25); box-shadow: 0 12px 32px -8px rgba(12,13,43,.4); }
+.statusbanner::before { content: ''; position: absolute; right: -50px; top: -60px; width: 190px; height: 190px; border-radius: 50%; background: radial-gradient(circle, rgba(54,179,126,.2), transparent 70%); pointer-events: none; }
+.sb-top { display: flex; align-items: center; gap: .65rem; position: relative; }
+.sb-ic { width: 38px; height: 38px; border-radius: 14px; display: grid; place-items: center; flex: none; font-size: 1.15rem; color: #241a00; background: linear-gradient(135deg, #f1c948, #e9c349); box-shadow: 0 6px 16px rgba(212,175,55,.3); }
+.sb-tx { min-width: 0; flex: 1; display: flex; flex-direction: column; }
+.statusbanner .lb { font-size: .6rem; letter-spacing: .14em; color: #e9c349; font-weight: 800; text-transform: uppercase; }
+.statusbanner .tt { font-weight: 800; font-size: 1rem; line-height: 1.25; }
+.sb-chip { flex: none; padding: .25rem .7rem; border-radius: 99px; font-size: .66rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; border: 1px solid; }
+.sb-chip.ok { background: rgba(54,179,126,.16); border-color: rgba(79,214,156,.4); color: #6fe3b0; }
+.sb-chip.wait { background: rgba(241,201,72,.14); border-color: rgba(241,201,72,.4); color: #f1d27a; }
+.sb-chip.info { background: rgba(120,168,255,.14); border-color: rgba(120,168,255,.4); color: #9bbcff; }
+.statusbanner .clock { font-size: 2.4rem; margin: .8rem 0 0; position: relative; }
+.statusbanner .date { opacity: .8; font-size: .85rem; position: relative; }
+.sb-inner { margin-top: .8rem; padding: .65rem .8rem; border-radius: 16px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); display: flex; align-items: center; gap: .55rem; font-size: .82rem; color: #d7d8f5; position: relative; }
+.sb-inner i { color: #e9c349; }
+.qa-title { margin: 1.2rem 0 .5rem .2rem; font-size: .68rem; letter-spacing: .14em; font-weight: 800; color: var(--gold-ink); text-transform: uppercase; }
+.qa { display: flex; align-items: center; gap: .8rem; padding: .75rem; margin-bottom: .5rem; border-radius: 18px; background: var(--surface); border: 1px solid var(--hair); text-decoration: none; color: var(--text); box-shadow: 0 2px 10px -2px rgba(20,22,65,.05); }
+.qa:active { transform: scale(.99); }
+.qa .ic { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; flex: none; font-size: 1.15rem; background: var(--brand-soft); color: var(--brand); }
+.qa .ic.gold { background: rgba(212,175,55,.16); color: var(--gold-ink); }
+.qa .t { min-width: 0; flex: 1; }
+.qa .t b { display: block; font-size: .88rem; }
+.qa .t small { color: var(--muted); font-size: .76rem; }
+.qa .go { color: var(--muted); }
+.verse { margin-top: .9rem; padding: 1rem; border-radius: 22px; display: flex; gap: .75rem; background: linear-gradient(135deg, rgba(46,45,136,.07), rgba(74,50,154,.05)); border: 1px solid var(--hair); }
+.verse .q { width: 34px; height: 34px; border-radius: 12px; flex: none; display: grid; place-items: center; background: rgba(212,175,55,.2); color: var(--gold-ink); font-size: 1.1rem; }
+.verse p { font-family: 'EB Garamond', serif; font-style: italic; font-size: 1.05rem; line-height: 1.5; margin: 0 0 .35rem; }
+.verse small { font-size: .7rem; font-weight: 800; letter-spacing: .1em; color: var(--gold-ink); text-transform: uppercase; }
+
+/* ───────── Kiosk absen wajah ───────── */
+.kiosk-view { background: radial-gradient(900px 380px at 0% -10%, rgba(212,175,55,.13), transparent), radial-gradient(900px 380px at 100% -10%, rgba(46,45,136,.14), transparent), var(--bg); }
+.k-top { display: flex; align-items: center; gap: .7rem; margin-bottom: .9rem; }
+.k-brandtxt .nm { font-family: 'EB Garamond', serif; font-weight: 700; font-size: 1.3rem; line-height: 1.05; }
+.k-brandtxt .sub { font-size: .6rem; letter-spacing: .14em; color: var(--gold-ink); font-weight: 800; text-transform: uppercase; }
+.k-livebar { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.k-live { display: flex; align-items: center; gap: .55rem; font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: .92rem; }
+.k-live .pulse { width: 10px; height: 10px; border-radius: 50%; background: #10b981; animation: kpulse 1.8s infinite; }
+@keyframes kpulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,.55); } 70% { box-shadow: 0 0 0 8px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+.k-modechip { font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--gold-ink); padding: .25rem .7rem; border-radius: 99px; background: rgba(212,175,55,.16); border: 1px solid rgba(212,175,55,.4); }
+.k-date { font-family: 'EB Garamond', serif; font-size: 1.5rem; font-weight: 600; margin: .1rem 0 .65rem; }
+#kGeo.k-chip { position: static; margin: 0 0 .8rem; background: var(--surface-2); color: var(--text); border: 1px solid rgba(27,135,85,.25); box-shadow: none; border-radius: 16px; }
+#kGeo.k-chip.bad { border-color: rgba(197,48,48,.35); }
+#kGeo.k-chip.wait { border-color: rgba(217,119,6,.35); }
+[data-theme="dark"] #kGeo .acc { background: var(--surface); color: var(--muted); }
+.k-seg { border-radius: 16px; }
+
+.kiosk-cam { background: #050619; border: 1px solid rgba(26,27,75,.3); box-shadow: 0 16px 40px -8px rgba(2,1,53,.4); }
+.kiosk-cam::after { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(to top, rgba(2,1,53,.6), transparent 38%, rgba(2,1,53,.35)); }
+.kiosk-cam .face-ring { z-index: 2; width: 66%; border: 2px dashed rgba(233,195,73,.75); }
+.kiosk-cam .face-ring.ok { border: 2px solid #f1c948; animation: kglow 2.2s ease-in-out infinite; }
+@keyframes kglow { 0%, 100% { box-shadow: 0 0 14px rgba(212,175,55,.3); } 50% { box-shadow: 0 0 34px rgba(212,175,55,.6); } }
+.k-br { position: absolute; width: 30px; height: 30px; z-index: 2; pointer-events: none; border: 0 solid rgba(241,201,72,.95); filter: drop-shadow(0 0 6px rgba(241,201,72,.5)); }
+.k-br.tl { top: 54px; left: 18px; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 10px; }
+.k-br.tr { top: 54px; right: 18px; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 10px; }
+.k-br.bl { bottom: 58px; left: 18px; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 10px; }
+.k-br.brr { bottom: 58px; right: 18px; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 10px; }
+.k-scan { position: absolute; left: 14%; right: 14%; height: 2px; z-index: 2; pointer-events: none; background: linear-gradient(90deg, transparent, #5eead4, #f1c948); box-shadow: 0 0 12px rgba(94,234,212,.8); animation: kscan 2.4s ease-in-out infinite alternate; }
+@keyframes kscan { 0% { top: 14%; opacity: .15; } 20% { opacity: .9; } 80% { opacity: .9; } 100% { top: 84%; opacity: .15; } }
+.k-tag { position: absolute; top: 12px; left: 12px; z-index: 3; display: flex; align-items: center; gap: .4rem; padding: .3rem .65rem; border-radius: 10px;
+  background: rgba(0,0,0,.45); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.12); color: #5eead4; font: 700 .64rem 'JetBrains Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }
+.k-tag .dotp { width: 6px; height: 6px; border-radius: 50%; background: #2dd4bf; animation: kpulse 1.6s infinite; }
+.k-stamp { top: auto; bottom: 12px; z-index: 2; background: rgba(0,0,0,.6); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.12); font-size: .76rem; }
+.k-cammsg { z-index: 3; }
+.kiosk-cam .kiosk-overlay { inset: auto 10px 52px 10px; z-index: 4; border: 1px solid rgba(255,255,255,.25); }
+.kiosk-overlay.good { background: linear-gradient(135deg, rgba(27,135,85,.96), rgba(54,179,126,.96)); }
+
+.k-who { display: flex; align-items: center; gap: .8rem; margin-top: .9rem; padding: .8rem .9rem; border-radius: 20px; position: relative; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--hair); box-shadow: 0 8px 24px -6px rgba(26,27,75,.1); }
+.k-who::after { content: ''; position: absolute; right: -30px; bottom: -30px; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, rgba(212,175,55,.2), transparent 70%); pointer-events: none; }
+.k-who.ok { border-color: rgba(27,135,85,.4); }
+.who-avatar { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; flex: none; position: relative; font-family: 'EB Garamond', serif; font-size: 1.6rem; font-weight: 700; color: #e9c349; background: linear-gradient(135deg, #1a1b4b, #2e2d88); }
+.who-avatar.idle { background: var(--surface-2); color: var(--muted); font-size: 1.4rem; }
+.who-avatar .ck { position: absolute; right: -5px; bottom: -5px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: .7rem; color: #fff; background: linear-gradient(135deg, #1b8755, #36b37e); border: 2px solid var(--surface); }
+.who-body { min-width: 0; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.who-label { font-size: .64rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--gold-ink); }
+.who-name { font-family: 'EB Garamond', serif; font-size: 1.25rem; font-weight: 700; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.who-info { font-size: .8rem; color: var(--muted); }
+
+.k-confirm { width: 100%; margin-top: .8rem; padding: .85rem 1rem; border-radius: 18px; display: flex; align-items: center; justify-content: center; gap: .6rem; font-weight: 800; color: #1a1b4b;
+  background: linear-gradient(90deg, #d4af37, #f1c948 55%, #e4be3e); border: 1px solid #f3dc8c; box-shadow: 0 6px 20px rgba(212,175,55,.45); }
+.k-confirm i { font-size: 1.2rem; }
+.k-confirm:active { transform: scale(.99); }
+.k-secondary { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin: .5rem 0 .75rem; }
+.k-secondary button { height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: .45rem; font-weight: 700; font-size: .82rem; color: var(--text); background: var(--surface-2); border: 1px solid var(--hair); }
+.k-secondary button i { color: var(--gold-ink); font-size: 1.05rem; }
+.k-secondary button:disabled { opacity: .55; }
+.k-count { font-size: .72rem; font-weight: 800; padding: .2rem .7rem; border-radius: 99px; color: var(--gold-ink); background: rgba(212,175,55,.16); border: 1px solid rgba(212,175,55,.4); }
+.k-listhead { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; }
+.k-listhead .pulse { width: 9px; height: 9px; border-radius: 50%; background: #10b981; animation: kpulse 1.8s infinite; }
+.k-listhead h6 { font-family: 'EB Garamond', serif; font-size: 1.2rem; font-weight: 700; margin: 0 auto 0 0; }
+.k-avatar { background: linear-gradient(135deg, #1a1b4b, #2e2d88); color: #e9c349; font-family: 'EB Garamond', serif; font-size: 1.1rem; }
+
+.k-bottom { bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(calc(100% - 24px), 500px); border-radius: 999px; padding: .4rem .5rem;
+  background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--hair); box-shadow: 0 12px 36px -6px rgba(15,18,50,.2); }
+.k-bottom > button.active { color: var(--text); }
+.k-bottom > button.active i { background: var(--g1); color: #f1c948; border-radius: 999px; padding: .1rem .9rem; width: fit-content; margin: 0 auto; }
+.k-fab { background: linear-gradient(135deg, #d4af37, #f1c948); color: #1a1b4b; box-shadow: 0 8px 20px rgba(212,175,55,.5); }
+.k-fab-wrap { color: var(--gold-ink); }
+@media (max-width: 991.98px) { .main-content { padding-bottom: 6.5rem; } }
+@media (prefers-reduced-motion: reduce) { .k-scan, .k-live .pulse, .k-listhead .pulse, .k-tag .dotp, .kiosk-cam .face-ring.ok { animation: none; } }
 </style>
 
 </head>
@@ -341,25 +509,24 @@ tr.clickable { cursor: pointer; }
       </div>
 
       <button class="btn btn-link theme-link" onclick="toggleDarkMode()"><i class="bi bi-moon-stars"></i> Mode gelap / terang</button>
-      <div class="ver-info">Tampilan v2.8 • Skrip: <span id="verJs" class="ver-bad">lama / belum diperbarui ✗</span><br><a href="#" id="linkServer" class="d-none" onclick="changeServer();return false;">Ubah alamat server</a></div>
+      <div class="ver-info">Tampilan v2.7 • Skrip: <span id="verJs" class="ver-bad">lama / belum diperbarui ✗</span><br><a href="#" id="linkServer" class="d-none" onclick="changeServer();return false;">Ubah alamat server</a></div>
     </div>
   </div>
 
   <!-- ═════════ KIOSK ABSEN WAJAH (tampilan mobile) ═════════ -->
   <div id="kioskView" class="kiosk-view d-none">
     <div class="kiosk-wrap">
-      <div class="k-head">
-        <div class="k-eyebrow">Presensi</div>
-        <h2 class="k-title">Absen Kamera</h2>
+      <div class="k-top">
+        <div class="brand-mark sm"><i class="bi bi-brightness-high"></i></div>
+        <div class="k-brandtxt"><div class="nm" id="kBrandName">Pelayan Tuhan</div><div class="sub">Gereja &amp; Pelayanan • Kiosk Wajah</div></div>
       </div>
 
       <div class="tab-content">
         <!-- Absen -->
         <div class="tab-pane fade show active" id="kPaneAbsen">
-          <div class="d-flex align-items-center gap-2">
-            <div class="k-clockchip"><i class="bi bi-clock"></i> <span id="kClockText">--:--:--</span></div>
-            <button type="button" class="k-voice" id="kVoiceBtn" onclick="toggleVoice()" aria-label="Suara konfirmasi"></button>
-          </div>
+          <div class="k-livebar"><div class="k-live"><span class="pulse"></span><span id="kClockText">--:--:--</span></div><span class="k-modechip"><i class="bi bi-shield-check"></i> Wajah &amp; GPS</span></div>
+          <div class="k-date" id="kDateText">&nbsp;</div>
+          <div class="k-chip geo wait" id="kGeo"><span class="dot"></span><span class="grow">Mencari lokasi...</span></div>
           <div class="k-seg">
             <button type="button" class="active" data-facing="user" onclick="setCamera('user')"><i class="bi bi-person-bounding-box"></i> Kamera Depan</button>
             <button type="button" data-facing="environment" onclick="setCamera('environment')"><i class="bi bi-camera"></i> Kamera Belakang</button>
@@ -367,23 +534,29 @@ tr.clickable { cursor: pointer; }
 
           <div class="cam-wrap kiosk-cam" id="kCamWrap">
             <video id="kVideo" playsinline muted autoplay></video>
+            <div class="k-br tl"></div><div class="k-br tr"></div><div class="k-br bl"></div><div class="k-br brr"></div>
+            <div class="k-scan"></div>
+            <div class="k-tag"><span class="dotp"></span>Pemindai Wajah</div>
             <div class="face-ring" id="kRing"></div>
-            <div class="k-chip geo wait" id="kGeo"><span class="dot"></span><span class="grow">Mencari lokasi...</span></div>
             <div class="k-stamp" id="kStamp"></div>
             <div class="k-cammsg" id="kCamMsg">Menyalakan kamera...</div>
             <div class="kiosk-overlay d-none" id="kResult"></div>
-            <div class="k-chip who" id="kWho"><span class="grow">Arahkan wajah ke kamera</span><i class="bi bi-person-bounding-box"></i></div>
           </div>
-          <p class="small text-center mt-2 mb-2" id="kStatus">Memuat pengenal wajah...</p>
+          <div class="k-who" id="kWho"><div class="who-avatar idle"><i class="bi bi-person-bounding-box"></i></div><div class="who-body"><span class="who-label">Menunggu wajah</span><span class="who-info">Arahkan wajah ke kamera</span></div></div>
+          <p class="small text-center text-muted mt-2 mb-0" id="kStatus">Memuat pengenal wajah...</p>
+          <button type="button" class="k-confirm" onclick="kioskManual()"><i class="bi bi-person-check-fill"></i><span>Absen Sekarang</span></button>
+          <div class="k-secondary">
+            <button type="button" id="kPhone" onclick="kioskPhone()" disabled><i class="bi bi-phone"></i> Kamera HP</button>
+            <button type="button" onclick="kioskToPin()"><i class="bi bi-123"></i> PIN Manual</button>
+          </div>
 
           <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="kAuto" checked><label class="form-check-label small" for="kAuto">Absen otomatis</label></div>
-            <button class="btn btn-sm btn-outline-primary" id="kPhone" onclick="kioskPhone()" disabled><i class="bi bi-phone"></i> Pakai aplikasi kamera HP</button>
             <a href="#" id="kRetry" class="small d-none" onclick="retryKiosk();return false;"><i class="bi bi-arrow-repeat"></i> Coba nyalakan kamera lagi</a>
           </div>
 
           <div class="card p-3 mt-3">
-            <div class="d-flex align-items-center mb-2"><h6 class="card-title mb-0 me-auto">Absensi Hari Ini</h6><span class="badge bg-secondary" id="kCount">0</span></div>
+            <div class="k-listhead"><span class="pulse"></span><h6>Live Kehadiran Hari Ini</h6><span class="k-count" id="kCount">0</span></div>
             <div id="kToday"><div class="empty">Memuat...</div></div>
           </div>
         </div>
@@ -529,9 +702,6 @@ tr.clickable { cursor: pointer; }
                   <option value="opsional">Opsional (boleh dilewati)</option>
                   <option value="nonaktif">Nonaktif (tanpa foto)</option>
                 </select>
-                <label class="form-label small mt-3" for="suaraPesan"><i class="bi bi-volume-up"></i> Pesan suara saat absen berhasil</label>
-                <input type="text" id="suaraPesan" class="form-control" maxlength="100" placeholder="Absen diterima. Terima kasih.">
-                <div class="form-text">Dibacakan otomatis oleh HP/komputer. Kosongkan untuk mematikan suara.</div>
               </div>
             </div>
             <div class="col-lg-6">
@@ -815,7 +985,7 @@ tr.clickable { cursor: pointer; }
 // BAGIAN 1: STATE, UTILITAS & API
 // ════════════════════════════════════════════════════════
 
-const JS_VERSION = '2.8.1';
+const JS_VERSION = '2.7';
 const S = { token: null, role: null, name: '', tz: 'Asia/Jakarta', offset: 0, section: null, charts: {}, pelayan: [],
   mon: { rows: [], filter: 'Semua' }, izin: [], izinFilter: 'Semua', pending: 0, defaultPw: false, dash: null,
   home: null, pos: null, watchId: null, clockTimer: null, rekap: null, izinTarget: null };
@@ -1054,26 +1224,12 @@ function clearSession() {
   try { localStorage.removeItem('apt_session'); } catch (e) { /* abaikan */ }
 }
 
-/** Muat info publik: nama aplikasi, zona waktu, dan daftar pelayan untuk login PIN */
-async function loadPublicInfo() {
-  const info = await api('getPublicInfo');
-  if (info.timezone) S.tz = info.timezone;
-  $('authTitle').textContent = info.appName || 'Absensi Pelayan Tuhan';
-  $('appTitle').textContent = info.appName || 'Absensi Pelayan Tuhan';
-  document.title = info.appName || document.title;
-  const sel = $('loginNama'), keep = sel.value;
-  sel.innerHTML = '<option value="">— Pilih nama Anda —</option>' + info.pelayan.map((p) => `<option value="${esc(p.id)}">${esc(p.nama)}</option>`).join('');
-  if (keep && info.pelayan.some((p) => p.id === keep)) sel.value = keep;   // pertahankan pilihan yang sedang dipakai
-  return info;
-}
-
 function showAuth() {
   leaveHome();
   $('appView').classList.add('d-none');
   $('authView').classList.remove('d-none');
   $('loginPin').value = '';
   $('loginPass').value = '';
-  loadPublicInfo().catch(() => { /* daftar lama tetap dipakai bila jaringan bermasalah */ });   // pelayan baru langsung muncul
 }
 
 function enterApp(role, token, name) {
@@ -1354,7 +1510,7 @@ function exportPelayanCsv() {
 // BAGIAN 7: ADMIN — WAKTU & LOKASI
 // ════════════════════════════════════════════════════════
 
-const SET_FIELDS = ['fotoMode', 'suaraPesan', 'ciOpen', 'ciClose', 'ciNama', 'ciLat', 'ciLng', 'ciRadius'];
+const SET_FIELDS = ['fotoMode', 'ciOpen', 'ciClose', 'ciNama', 'ciLat', 'ciLng', 'ciRadius'];
 const HARI_URUT = [1, 2, 3, 4, 5, 6, 0];
 
 async function loadSettings() {
@@ -1538,7 +1694,6 @@ async function loadHome() {
   try {
     const h = await apiT('pelayanHome');
     S.home = h; S.tz = h.timezone; S.offset = h.epoch - Date.now();
-    if (typeof h.suara === 'string') V.text = h.suara;
     renderHome();
     leaveHome();
     S.clockTimer = setInterval(tickHome, 1000);
@@ -1548,21 +1703,37 @@ async function loadHome() {
 
 function renderHome() {
   const h = S.home, r = h.record, c = h.cfg;
-  const status = h.blocked
-    ? `<div class="alert-soft mb-0"><i class="bi bi-calendar-heart"></i> ${esc(h.blocked.text)}</div>`
-    : r ? '<div class="d-flex justify-content-between align-items-center"><span>Status hari ini</span><span class="st st-success">Sudah absen</span></div>'
-        : '<div class="d-flex justify-content-between align-items-center"><span>Status hari ini</span><span class="st st-danger">Belum absen</span></div>';
+  const nama = esc(h.nama);
+  const initial = esc(String(h.nama || '?').trim().charAt(0).toUpperCase());
+  let title, chipCls, chipTxt, detail;
+  const jendela = `<i class="bi bi-alarm"></i><span>Jendela absen ${c.ciOpen} – ${c.ciClose}</span>`;
+  if (h.blocked) { title = esc(h.blocked.text); chipCls = 'info'; chipTxt = 'Info'; detail = jendela; }
+  else if (r) {
+    title = 'Sudah Absen Hari Ini'; chipCls = 'ok'; chipTxt = 'Tercatat';
+    detail = `<i class="bi bi-geo-alt-fill"></i><span>${fmtDate(h.tanggal)} · ${hhmm(r.waktu)} · ±${r.jarak} m dari lokasi</span>`;
+  } else { title = 'Belum Absen Hari Ini'; chipCls = 'wait'; chipTxt = 'Menunggu'; detail = jendela; }
   $('section-plyHome').innerHTML = `
-    <div class="hero">
-      <div class="hello">Shalom,</div><div class="name">${esc(h.nama)}</div>
-      <div class="clock" id="clock">--:--:--</div><div class="date" id="clockDate"></div>
+    <div class="home-greet"><span class="eyebrow">Salam Sejahtera</span><h1>Shalom, ${nama}</h1></div>
+    <div class="idcard">
+      <div class="av"><b>${initial}</b></div>
+      <div class="idtxt"><div class="nm">${nama}</div><div class="rl">Pelayan Tuhan</div></div>
+      <span class="pill-aktif"><i></i>Aktif</span>
     </div>
-    <div class="card p-3 mt-3">${status}</div>
+    <div class="statusbanner">
+      <div class="sb-top">
+        <div class="sb-ic"><i class="bi bi-patch-check-fill"></i></div>
+        <div class="sb-tx"><span class="lb">Status Presensi Hari Ini</span><span class="tt">${title}</span></div>
+        <span class="sb-chip ${chipCls}">${chipTxt}</span>
+      </div>
+      <div class="clock" id="clock">--:--:--</div><div class="date" id="clockDate"></div>
+      <div class="sb-inner">${detail}</div>
+    </div>
     <div class="mt-3"><button class="act-btn act-in" id="btnIn" onclick="doAbsen()"><i class="bi bi-camera-fill"></i>Absen<small>Dibuka ${c.ciOpen} – ${c.ciClose}</small></button></div>
     <div class="geo-box mt-3" id="geoBox"><i class="bi bi-geo-alt"></i> Mencari lokasi Anda...</div>
-    <div class="card p-3 mt-3"><h6 class="card-title">Catatan Hari Ini</h6><div class="timeline">
-      <div class="row-i"><div class="dot" style="background:var(--c-success)"><i class="bi bi-calendar-check"></i></div><div><b>Absen</b><div class="small text-muted">${r ? `${fmtDate(h.tanggal)} pukul ${hhmm(r.waktu)} • ±${r.jarak} m` : 'Belum absen hari ini'}</div></div></div>
-    </div></div>`;
+    <div class="qa-title">Aksi Cepat</div>
+    <a href="#" class="qa" onclick="navigate('plyRiwayat');return false;"><div class="ic"><i class="bi bi-calendar-check"></i></div><div class="t"><b>Kehadiran Saya</b><small>Riwayat dan rekap kehadiran bulanan</small></div><i class="bi bi-chevron-right go"></i></a>
+    <a href="#" class="qa" onclick="navigate('plyIzin');return false;"><div class="ic gold"><i class="bi bi-envelope-paper"></i></div><div class="t"><b>Ajukan Izin / Sakit</b><small>Kirim pengajuan kepada admin</small></div><i class="bi bi-chevron-right go"></i></a>
+    <div class="verse"><div class="q"><i class="bi bi-quote"></i></div><div><p>“Layanilah seorang akan yang lain, sesuai dengan karunia yang telah diperoleh tiap-tiap orang sebagai pengurus yang baik dari kasih karunia Allah.”</p><small>1 Petrus 4:10</small></div></div>`;
   tickHome();
 }
 
@@ -1708,7 +1879,7 @@ async function submitAbsen(foto) {
     const pos = await getPosition();
     const r = await apiT('absen', pos.lat, pos.lng, foto);
     toast('Berhasil', `Absen tercatat ${fmtDate(r.tanggal)} pukul ${hhmm(r.waktu)}. Tuhan memberkati!`, 'success');
-    speakConfirm();
+    speakAbsen();
     await loadHome();
   } catch (e) {
     fail(e);
@@ -1899,62 +2070,79 @@ function snapFrame(video) {
   return cv.toDataURL('image/jpeg', 0.72);
 }
 
-// ───────── Suara konfirmasi (Web Speech API) ─────────
-const V = { on: true, text: 'Absen diterima. Terima kasih.', voice: null };
-try { V.on = localStorage.getItem('apt_voice') !== 'off'; } catch (e) { /* abaikan */ }
+// ───────── Suara konfirmasi absen ─────────
+const SND = { ctx: null, audio: null, unlocked: false };
+const SND_TEXT = 'Absen diterima. Terima kasih.';
+const SND_SILENT = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAAA';
 
-function pickVoice() {
-  if (!('speechSynthesis' in window)) return;
-  const list = speechSynthesis.getVoices() || [];
-  V.voice = list.find((v) => /^id([-_]|$)/i.test(v.lang)) || list.find((v) => /indonesia/i.test(v.name)) || null;
-}
-if ('speechSynthesis' in window) {
-  pickVoice();
-  if (speechSynthesis.addEventListener) speechSynthesis.addEventListener('voiceschanged', pickVoice);
-  // Browser baru hanya mengizinkan suara setelah pengguna menyentuh halaman sekali: "buka kunci" pada sentuhan pertama
-  document.addEventListener('pointerdown', () => {
-    try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch (e) { /* abaikan */ }
-  }, { once: true, passive: true });
-}
-
-/** Nada pendek sebagai cadangan bila perangkat tidak punya suara */
-function beep() {
+/** "Buka kunci" audio pada sentuhan pertama (aturan browser HP) */
+function sndUnlock() {
+  if (SND.unlocked) return;
+  SND.unlocked = true;
   try {
     const AC = window.AudioContext || window.webkitAudioContext;
-    const ctx = new AC(), o = ctx.createOscillator(), g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.frequency.value = 880; g.gain.setValueAtTime(0.15, ctx.currentTime);
-    o.start(); o.stop(ctx.currentTime + 0.18);
-    setTimeout(() => ctx.close(), 400);
+    if (AC) { SND.ctx = SND.ctx || new AC(); if (SND.ctx.state === 'suspended') SND.ctx.resume(); }
+  } catch (e) { /* abaikan */ }
+  try { SND.audio = new Audio(SND_SILENT); SND.audio.play().catch(() => {}); } catch (e) { /* abaikan */ }
+  try {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+      const u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u);
+    }
+  } catch (e) { /* abaikan */ }
+}
+['click', 'touchstart', 'pointerdown', 'keydown'].forEach((ev) => document.addEventListener(ev, sndUnlock, { once: true, passive: true }));
+
+/** Bunyi "ding-dong" singkat (selalu terdengar walau suara bicara gagal) */
+function playChime() {
+  try {
+    const c = SND.ctx;
+    if (!c) return;
+    if (c.state === 'suspended') c.resume();
+    [[880, 0], [1175, 0.2]].forEach((n) => {
+      const o = c.createOscillator(), g = c.createGain(), t = c.currentTime + n[1];
+      o.type = 'sine'; o.frequency.value = n[0];
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.35, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+      o.connect(g); g.connect(c.destination);
+      o.start(t); o.stop(t + 0.4);
+    });
   } catch (e) { /* abaikan */ }
 }
 
-function speak(text) {
-  if (!V.on || !text) return;
-  if (!('speechSynthesis' in window)) { beep(); return; }
+/** Jalur cadangan: suara Indonesia dari layanan TTS lewat elemen audio */
+function speakViaAudio() {
   try {
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'id-ID'; u.rate = 0.95; u.volume = 1;
-    if (V.voice) u.voice = V.voice;
-    u.onerror = (ev) => { if (ev && ev.error === 'not-allowed') toast('Suara belum aktif', 'Ketuk layar sekali agar suara konfirmasi dapat diputar.', 'warning'); };
-    speechSynthesis.speak(u);
-  } catch (e) { beep(); }
+    const a = SND.audio || new Audio();
+    a.src = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=id&q=' + encodeURIComponent(SND_TEXT);
+    a.volume = 1;
+    a.play().catch(() => {});
+  } catch (e) { /* abaikan */ }
 }
-function speakConfirm() { speak(V.text); }
 
-function renderVoiceBtn() {
-  const b = $('kVoiceBtn');
-  if (!b) return;
-  b.innerHTML = V.on ? '<i class="bi bi-volume-up-fill"></i>' : '<i class="bi bi-volume-mute-fill"></i>';
-  b.classList.toggle('off', !V.on);
-  b.title = V.on ? 'Suara aktif (ketuk untuk mematikan)' : 'Suara mati (ketuk untuk menyalakan)';
-}
-function toggleVoice() {
-  V.on = !V.on;
-  try { localStorage.setItem('apt_voice', V.on ? 'on' : 'off'); } catch (e) { /* abaikan */ }
-  renderVoiceBtn();
-  if (V.on) speak('Suara aktif');
+function speakAbsen() {
+  playChime();
+  let done = false;
+  const fallback = () => { if (done) return; done = true; setTimeout(speakViaAudio, 700); };
+  try {
+    if (!('speechSynthesis' in window)) { fallback(); return; }
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    synth.resume();
+    setTimeout(() => {
+      try {
+        const u = new SpeechSynthesisUtterance(SND_TEXT);
+        u.lang = 'id-ID'; u.rate = 0.95; u.pitch = 1; u.volume = 1;
+        const v = synth.getVoices().find((x) => x.lang && x.lang.toLowerCase().replace('_', '-').indexOf('id') === 0);
+        if (v) u.voice = v;
+        u.onstart = () => { done = true; };
+        u.onerror = () => fallback();
+        synth.speak(u);
+        setTimeout(() => { if (!done && !synth.speaking) fallback(); }, 1800);
+      } catch (e) { fallback(); }
+    }, 250);
+  } catch (e) { fallback(); }
 }
 
 // ───────── Kiosk absen wajah (tampilan mobile) ─────────
@@ -1968,6 +2156,8 @@ function updateKioskClock() {
   const lbl = TZ_LABEL[S.tz] || '';
   const dt = serverNow().toLocaleDateString('id-ID', { timeZone: S.tz, day: 'numeric', month: 'short', year: 'numeric' });
   $('kClockText').textContent = `${tzTime()} ${lbl}`.trim();
+  const dEl = $('kDateText');
+  if (dEl) dEl.textContent = serverNow().toLocaleDateString('id-ID', { timeZone: S.tz, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   $('kStamp').innerHTML = `<i class="bi bi-clock"></i> ${tzTime()} ${lbl} · ${dt}`;
 }
 
@@ -1995,11 +2185,13 @@ function renderWho() {
   if (!el) return;
   if (K.ident) {
     const info = K.ident.sudah ? 'Sudah absen pukul ' + hhmm(K.ident.waktu) : 'Siap absen';
-    el.className = 'k-chip who ok';
-    el.innerHTML = `<span class="grow"><b>${esc(K.ident.nama.toUpperCase())}</b> · ${esc(info)}</span><i class="bi bi-shield-check"></i>`;
+    el.className = 'k-who ok';
+    el.innerHTML = `<div class="who-avatar">${esc(K.ident.nama.trim().charAt(0).toUpperCase())}<span class="ck"><i class="bi bi-check-lg"></i></span></div>
+      <div class="who-body"><span class="who-label"><i class="bi bi-person-check"></i> Wajah Dikenali</span><span class="who-name">${esc(K.ident.nama)}</span><span class="who-info">${esc(info)}</span></div>`;
   } else {
-    el.className = 'k-chip who';
-    el.innerHTML = `<span class="grow">${esc(K.whoMsg || 'Arahkan wajah ke kamera')}</span><i class="bi bi-person-bounding-box"></i>`;
+    el.className = 'k-who';
+    el.innerHTML = `<div class="who-avatar idle"><i class="bi bi-person-bounding-box"></i></div>
+      <div class="who-body"><span class="who-label">Menunggu wajah</span><span class="who-info">${esc(K.whoMsg || 'Arahkan wajah ke kamera')}</span></div>`;
   }
 }
 
@@ -2156,11 +2348,10 @@ async function refreshKiosk() {
     const d = await api('kioskInfo');
     S.tz = d.timezone; S.offset = d.epoch - Date.now();
     K.locs = d.locs || [];
-    if (typeof d.suara === 'string') V.text = d.suara;
     renderGeoChip(); updateKioskClock();
     $('kCount').textContent = `${d.hadir}/${d.total}`;
     $('kToday').innerHTML = d.rows.length ? d.rows.map((r) => `<div class="k-item"><div class="k-avatar">${esc(r.nama.charAt(0).toUpperCase())}</div>
-      <div class="k-meta"><b>${esc(r.nama)}</b><small>${fmtDate(d.tanggal)}</small></div><span class="k-time">${hhmm(r.waktu)}</span></div>`).join('')
+      <div class="k-meta"><b>${esc(r.nama)}</b><small>${fmtDate(d.tanggal)}</small></div><span class="text-end"><span class="k-time d-block">${hhmm(r.waktu)}</span><span class="st st-success">Hadir</span></span></div>`).join('')
       : '<div class="empty">Belum ada absensi hari ini.</div>';
     $('kStaffBody').innerHTML = d.staff.length ? d.staff.map((s) => `<tr><td><b>${esc(s.nama)}</b></td>
       <td>${s.sampel ? '<span class="st st-success"><i class="bi bi-check2"></i> Terdaftar</span>' : '<span class="st st-muted">Belum terdaftar</span>'}</td></tr>`).join('')
@@ -2298,7 +2489,7 @@ function showKioskResult(ok, data) {
     el.innerHTML = `<div class="big"><i class="bi bi-check-circle-fill"></i> ${esc(data.nama)}</div>
       <div>Absen berhasil • ${fmtDate(data.tanggal)} pukul ${hhmm(data.waktu)}</div>`;
     kStatus('Absen berhasil. Tuhan memberkati!');
-    speakConfirm();
+    speakAbsen();
   } else {
     el.className = 'kiosk-overlay bad';
     el.innerHTML = `<div><i class="bi bi-exclamation-triangle-fill"></i> ${esc(data)}</div>`;
@@ -2424,7 +2615,6 @@ function hideLoading() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  renderVoiceBtn();
   const ver = $('verJs');
   if (ver) { ver.textContent = 'v' + JS_VERSION + ' ✓'; ver.className = 'ver-ok'; }
   let theme = 'light';
@@ -2462,7 +2652,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   try {
-    await loadPublicInfo();
+    const info = await api('getPublicInfo');
+    if (info.timezone) S.tz = info.timezone;
+    $('authTitle').textContent = info.appName || 'Absensi Pelayan Tuhan';
+    $('appTitle').textContent = info.appName || 'Absensi Pelayan Tuhan';
+    document.title = info.appName || document.title;
+    $('loginNama').innerHTML = '<option value="">— Pilih nama Anda —</option>' + info.pelayan.map((p) => `<option value="${esc(p.id)}">${esc(p.nama)}</option>`).join('');
   } catch (e) {
     $('loginNama').innerHTML = '<option value="">Gagal memuat daftar</option>';
     fail(e);
