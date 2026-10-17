@@ -552,6 +552,7 @@ h1, h2, h3, .page-title, .sidebar-title, .auth-brand h1, .kpi .v, .hero .name, .
 
           <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="kAuto" checked><label class="form-check-label small" for="kAuto">Absen otomatis</label></div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="testSuara()"><i class="bi bi-volume-up"></i> Tes suara</button>
             <a href="#" id="kRetry" class="small d-none" onclick="retryKiosk();return false;"><i class="bi bi-arrow-repeat"></i> Coba nyalakan kamera lagi</a>
           </div>
 
@@ -2076,14 +2077,21 @@ const SND_TEXT = 'Absen diterima. Terima kasih.';
 const SND_SILENT = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAAA';
 
 /** "Buka kunci" audio pada sentuhan pertama (aturan browser HP) */
-function sndUnlock() {
-  if (SND.unlocked) return;
-  SND.unlocked = true;
+function sndContext() {
   try {
     const AC = window.AudioContext || window.webkitAudioContext;
-    if (AC) { SND.ctx = SND.ctx || new AC(); if (SND.ctx.state === 'suspended') SND.ctx.resume(); }
+    if (AC && !SND.ctx) SND.ctx = new AC();
+    if (SND.ctx && SND.ctx.state === 'suspended') SND.ctx.resume();
   } catch (e) { /* abaikan */ }
-  try { SND.audio = new Audio(SND_SILENT); SND.audio.play().catch(() => {}); } catch (e) { /* abaikan */ }
+  return SND.ctx;
+}
+/** Hanya ketukan sungguhan (click / touchend / pointerup / keydown) yang diakui browser HP. Diulang sampai audio benar-benar jalan. */
+function sndUnlock() {
+  if (SND.unlocked) return;
+  const c = sndContext();
+  if (c && c.state === 'running') SND.unlocked = true;
+  else if (c && c.resume) { try { c.resume().then(() => { if (c.state === 'running') SND.unlocked = true; }).catch(() => {}); } catch (e) { /* abaikan */ } }
+  try { SND.audio = SND.audio || new Audio(SND_SILENT); SND.audio.play().catch(() => {}); } catch (e) { /* abaikan */ }
   try {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.getVoices();
@@ -2091,14 +2099,20 @@ function sndUnlock() {
     }
   } catch (e) { /* abaikan */ }
 }
-['click', 'touchstart', 'pointerdown', 'keydown'].forEach((ev) => document.addEventListener(ev, sndUnlock, { once: true, passive: true }));
+['click', 'touchend', 'pointerup', 'keydown'].forEach((ev) => document.addEventListener(ev, sndUnlock, { passive: true }));
+
+/** Tombol "Tes suara": ketukan ini sekaligus membuka kunci audio dan membunyikan suara contoh */
+function testSuara() {
+  sndUnlock();
+  speakAbsen();
+  toast('Tes suara', 'Terdengar "ding-dong" lalu "Absen diterima. Terima kasih."? Jika hening: naikkan volume media HP dan matikan mode senyap.', 'warning');
+}
 
 /** Bunyi "ding-dong" singkat (selalu terdengar walau suara bicara gagal) */
 function playChime() {
   try {
-    const c = SND.ctx;
+    const c = sndContext();
     if (!c) return;
-    if (c.state === 'suspended') c.resume();
     [[880, 0], [1175, 0.2]].forEach((n) => {
       const o = c.createOscillator(), g = c.createGain(), t = c.currentTime + n[1];
       o.type = 'sine'; o.frequency.value = n[0];
