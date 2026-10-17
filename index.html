@@ -252,6 +252,8 @@ tr.clickable { cursor: pointer; }
 
 .k-cammsg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 2rem 1.5rem; color: #e9e9ff; font-size: .95rem; font-weight: 600; line-height: 1.5; background: rgba(8,9,30,.55); z-index: 1; }
 .k-cammsg.d-none { display: none; }
+.k-voice { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--brand); font-size: 1.2rem; display: grid; place-items: center; margin: .5rem 0 .75rem; flex: none; }
+.k-voice.off { color: var(--muted); }
 .k-time { font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; }
 
 /* ── Responsif ── */
@@ -339,7 +341,7 @@ tr.clickable { cursor: pointer; }
       </div>
 
       <button class="btn btn-link theme-link" onclick="toggleDarkMode()"><i class="bi bi-moon-stars"></i> Mode gelap / terang</button>
-      <div class="ver-info">Tampilan v2.7 • Skrip: <span id="verJs" class="ver-bad">lama / belum diperbarui ✗</span><br><a href="#" id="linkServer" class="d-none" onclick="changeServer();return false;">Ubah alamat server</a></div>
+      <div class="ver-info">Tampilan v2.8 • Skrip: <span id="verJs" class="ver-bad">lama / belum diperbarui ✗</span><br><a href="#" id="linkServer" class="d-none" onclick="changeServer();return false;">Ubah alamat server</a></div>
     </div>
   </div>
 
@@ -354,7 +356,10 @@ tr.clickable { cursor: pointer; }
       <div class="tab-content">
         <!-- Absen -->
         <div class="tab-pane fade show active" id="kPaneAbsen">
-          <div class="k-clockchip"><i class="bi bi-clock"></i> <span id="kClockText">--:--:--</span></div>
+          <div class="d-flex align-items-center gap-2">
+            <div class="k-clockchip"><i class="bi bi-clock"></i> <span id="kClockText">--:--:--</span></div>
+            <button type="button" class="k-voice" id="kVoiceBtn" onclick="toggleVoice()" aria-label="Suara konfirmasi"></button>
+          </div>
           <div class="k-seg">
             <button type="button" class="active" data-facing="user" onclick="setCamera('user')"><i class="bi bi-person-bounding-box"></i> Kamera Depan</button>
             <button type="button" data-facing="environment" onclick="setCamera('environment')"><i class="bi bi-camera"></i> Kamera Belakang</button>
@@ -524,6 +529,9 @@ tr.clickable { cursor: pointer; }
                   <option value="opsional">Opsional (boleh dilewati)</option>
                   <option value="nonaktif">Nonaktif (tanpa foto)</option>
                 </select>
+                <label class="form-label small mt-3" for="suaraPesan"><i class="bi bi-volume-up"></i> Pesan suara saat absen berhasil</label>
+                <input type="text" id="suaraPesan" class="form-control" maxlength="100" placeholder="Absen diterima. Terima kasih.">
+                <div class="form-text">Dibacakan otomatis oleh HP/komputer. Kosongkan untuk mematikan suara.</div>
               </div>
             </div>
             <div class="col-lg-6">
@@ -807,7 +815,7 @@ tr.clickable { cursor: pointer; }
 // BAGIAN 1: STATE, UTILITAS & API
 // ════════════════════════════════════════════════════════
 
-const JS_VERSION = '2.7';
+const JS_VERSION = '2.8.1';
 const S = { token: null, role: null, name: '', tz: 'Asia/Jakarta', offset: 0, section: null, charts: {}, pelayan: [],
   mon: { rows: [], filter: 'Semua' }, izin: [], izinFilter: 'Semua', pending: 0, defaultPw: false, dash: null,
   home: null, pos: null, watchId: null, clockTimer: null, rekap: null, izinTarget: null };
@@ -1046,12 +1054,26 @@ function clearSession() {
   try { localStorage.removeItem('apt_session'); } catch (e) { /* abaikan */ }
 }
 
+/** Muat info publik: nama aplikasi, zona waktu, dan daftar pelayan untuk login PIN */
+async function loadPublicInfo() {
+  const info = await api('getPublicInfo');
+  if (info.timezone) S.tz = info.timezone;
+  $('authTitle').textContent = info.appName || 'Absensi Pelayan Tuhan';
+  $('appTitle').textContent = info.appName || 'Absensi Pelayan Tuhan';
+  document.title = info.appName || document.title;
+  const sel = $('loginNama'), keep = sel.value;
+  sel.innerHTML = '<option value="">— Pilih nama Anda —</option>' + info.pelayan.map((p) => `<option value="${esc(p.id)}">${esc(p.nama)}</option>`).join('');
+  if (keep && info.pelayan.some((p) => p.id === keep)) sel.value = keep;   // pertahankan pilihan yang sedang dipakai
+  return info;
+}
+
 function showAuth() {
   leaveHome();
   $('appView').classList.add('d-none');
   $('authView').classList.remove('d-none');
   $('loginPin').value = '';
   $('loginPass').value = '';
+  loadPublicInfo().catch(() => { /* daftar lama tetap dipakai bila jaringan bermasalah */ });   // pelayan baru langsung muncul
 }
 
 function enterApp(role, token, name) {
@@ -1332,7 +1354,7 @@ function exportPelayanCsv() {
 // BAGIAN 7: ADMIN — WAKTU & LOKASI
 // ════════════════════════════════════════════════════════
 
-const SET_FIELDS = ['fotoMode', 'ciOpen', 'ciClose', 'ciNama', 'ciLat', 'ciLng', 'ciRadius'];
+const SET_FIELDS = ['fotoMode', 'suaraPesan', 'ciOpen', 'ciClose', 'ciNama', 'ciLat', 'ciLng', 'ciRadius'];
 const HARI_URUT = [1, 2, 3, 4, 5, 6, 0];
 
 async function loadSettings() {
@@ -1516,6 +1538,7 @@ async function loadHome() {
   try {
     const h = await apiT('pelayanHome');
     S.home = h; S.tz = h.timezone; S.offset = h.epoch - Date.now();
+    if (typeof h.suara === 'string') V.text = h.suara;
     renderHome();
     leaveHome();
     S.clockTimer = setInterval(tickHome, 1000);
@@ -1685,7 +1708,7 @@ async function submitAbsen(foto) {
     const pos = await getPosition();
     const r = await apiT('absen', pos.lat, pos.lng, foto);
     toast('Berhasil', `Absen tercatat ${fmtDate(r.tanggal)} pukul ${hhmm(r.waktu)}. Tuhan memberkati!`, 'success');
-    speakAbsen();
+    speakConfirm();
     await loadHome();
   } catch (e) {
     fail(e);
@@ -1876,79 +1899,62 @@ function snapFrame(video) {
   return cv.toDataURL('image/jpeg', 0.72);
 }
 
-// ───────── Suara konfirmasi absen ─────────
-const SND = { ctx: null, audio: null, unlocked: false };
-const SND_TEXT = 'Absen diterima. Terima kasih.';
-const SND_SILENT = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAAA';
+// ───────── Suara konfirmasi (Web Speech API) ─────────
+const V = { on: true, text: 'Absen diterima. Terima kasih.', voice: null };
+try { V.on = localStorage.getItem('apt_voice') !== 'off'; } catch (e) { /* abaikan */ }
 
-/** "Buka kunci" audio pada sentuhan pertama (aturan browser HP) */
-function sndUnlock() {
-  if (SND.unlocked) return;
-  SND.unlocked = true;
+function pickVoice() {
+  if (!('speechSynthesis' in window)) return;
+  const list = speechSynthesis.getVoices() || [];
+  V.voice = list.find((v) => /^id([-_]|$)/i.test(v.lang)) || list.find((v) => /indonesia/i.test(v.name)) || null;
+}
+if ('speechSynthesis' in window) {
+  pickVoice();
+  if (speechSynthesis.addEventListener) speechSynthesis.addEventListener('voiceschanged', pickVoice);
+  // Browser baru hanya mengizinkan suara setelah pengguna menyentuh halaman sekali: "buka kunci" pada sentuhan pertama
+  document.addEventListener('pointerdown', () => {
+    try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch (e) { /* abaikan */ }
+  }, { once: true, passive: true });
+}
+
+/** Nada pendek sebagai cadangan bila perangkat tidak punya suara */
+function beep() {
   try {
     const AC = window.AudioContext || window.webkitAudioContext;
-    if (AC) { SND.ctx = SND.ctx || new AC(); if (SND.ctx.state === 'suspended') SND.ctx.resume(); }
-  } catch (e) { /* abaikan */ }
-  try { SND.audio = new Audio(SND_SILENT); SND.audio.play().catch(() => {}); } catch (e) { /* abaikan */ }
-  try {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.getVoices();
-      const u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u);
-    }
-  } catch (e) { /* abaikan */ }
-}
-['click', 'touchstart', 'pointerdown', 'keydown'].forEach((ev) => document.addEventListener(ev, sndUnlock, { once: true, passive: true }));
-
-/** Bunyi "ding-dong" singkat (selalu terdengar walau suara bicara gagal) */
-function playChime() {
-  try {
-    const c = SND.ctx;
-    if (!c) return;
-    if (c.state === 'suspended') c.resume();
-    [[880, 0], [1175, 0.2]].forEach((n) => {
-      const o = c.createOscillator(), g = c.createGain(), t = c.currentTime + n[1];
-      o.type = 'sine'; o.frequency.value = n[0];
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.35, t + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
-      o.connect(g); g.connect(c.destination);
-      o.start(t); o.stop(t + 0.4);
-    });
+    const ctx = new AC(), o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 880; g.gain.setValueAtTime(0.15, ctx.currentTime);
+    o.start(); o.stop(ctx.currentTime + 0.18);
+    setTimeout(() => ctx.close(), 400);
   } catch (e) { /* abaikan */ }
 }
 
-/** Jalur cadangan: suara Indonesia dari layanan TTS lewat elemen audio */
-function speakViaAudio() {
+function speak(text) {
+  if (!V.on || !text) return;
+  if (!('speechSynthesis' in window)) { beep(); return; }
   try {
-    const a = SND.audio || new Audio();
-    a.src = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=id&q=' + encodeURIComponent(SND_TEXT);
-    a.volume = 1;
-    a.play().catch(() => {});
-  } catch (e) { /* abaikan */ }
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'id-ID'; u.rate = 0.95; u.volume = 1;
+    if (V.voice) u.voice = V.voice;
+    u.onerror = (ev) => { if (ev && ev.error === 'not-allowed') toast('Suara belum aktif', 'Ketuk layar sekali agar suara konfirmasi dapat diputar.', 'warning'); };
+    speechSynthesis.speak(u);
+  } catch (e) { beep(); }
 }
+function speakConfirm() { speak(V.text); }
 
-function speakAbsen() {
-  playChime();
-  let done = false;
-  const fallback = () => { if (done) return; done = true; setTimeout(speakViaAudio, 700); };
-  try {
-    if (!('speechSynthesis' in window)) { fallback(); return; }
-    const synth = window.speechSynthesis;
-    synth.cancel();
-    synth.resume();
-    setTimeout(() => {
-      try {
-        const u = new SpeechSynthesisUtterance(SND_TEXT);
-        u.lang = 'id-ID'; u.rate = 0.95; u.pitch = 1; u.volume = 1;
-        const v = synth.getVoices().find((x) => x.lang && x.lang.toLowerCase().replace('_', '-').indexOf('id') === 0);
-        if (v) u.voice = v;
-        u.onstart = () => { done = true; };
-        u.onerror = () => fallback();
-        synth.speak(u);
-        setTimeout(() => { if (!done && !synth.speaking) fallback(); }, 1800);
-      } catch (e) { fallback(); }
-    }, 250);
-  } catch (e) { fallback(); }
+function renderVoiceBtn() {
+  const b = $('kVoiceBtn');
+  if (!b) return;
+  b.innerHTML = V.on ? '<i class="bi bi-volume-up-fill"></i>' : '<i class="bi bi-volume-mute-fill"></i>';
+  b.classList.toggle('off', !V.on);
+  b.title = V.on ? 'Suara aktif (ketuk untuk mematikan)' : 'Suara mati (ketuk untuk menyalakan)';
+}
+function toggleVoice() {
+  V.on = !V.on;
+  try { localStorage.setItem('apt_voice', V.on ? 'on' : 'off'); } catch (e) { /* abaikan */ }
+  renderVoiceBtn();
+  if (V.on) speak('Suara aktif');
 }
 
 // ───────── Kiosk absen wajah (tampilan mobile) ─────────
@@ -2150,6 +2156,7 @@ async function refreshKiosk() {
     const d = await api('kioskInfo');
     S.tz = d.timezone; S.offset = d.epoch - Date.now();
     K.locs = d.locs || [];
+    if (typeof d.suara === 'string') V.text = d.suara;
     renderGeoChip(); updateKioskClock();
     $('kCount').textContent = `${d.hadir}/${d.total}`;
     $('kToday').innerHTML = d.rows.length ? d.rows.map((r) => `<div class="k-item"><div class="k-avatar">${esc(r.nama.charAt(0).toUpperCase())}</div>
@@ -2291,7 +2298,7 @@ function showKioskResult(ok, data) {
     el.innerHTML = `<div class="big"><i class="bi bi-check-circle-fill"></i> ${esc(data.nama)}</div>
       <div>Absen berhasil • ${fmtDate(data.tanggal)} pukul ${hhmm(data.waktu)}</div>`;
     kStatus('Absen berhasil. Tuhan memberkati!');
-    speakAbsen();
+    speakConfirm();
   } else {
     el.className = 'kiosk-overlay bad';
     el.innerHTML = `<div><i class="bi bi-exclamation-triangle-fill"></i> ${esc(data)}</div>`;
@@ -2417,6 +2424,7 @@ function hideLoading() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  renderVoiceBtn();
   const ver = $('verJs');
   if (ver) { ver.textContent = 'v' + JS_VERSION + ' ✓'; ver.className = 'ver-ok'; }
   let theme = 'light';
@@ -2454,12 +2462,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   try {
-    const info = await api('getPublicInfo');
-    if (info.timezone) S.tz = info.timezone;
-    $('authTitle').textContent = info.appName || 'Absensi Pelayan Tuhan';
-    $('appTitle').textContent = info.appName || 'Absensi Pelayan Tuhan';
-    document.title = info.appName || document.title;
-    $('loginNama').innerHTML = '<option value="">— Pilih nama Anda —</option>' + info.pelayan.map((p) => `<option value="${esc(p.id)}">${esc(p.nama)}</option>`).join('');
+    await loadPublicInfo();
   } catch (e) {
     $('loginNama').innerHTML = '<option value="">Gagal memuat daftar</option>';
     fail(e);
