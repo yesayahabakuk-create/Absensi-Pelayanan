@@ -2119,7 +2119,13 @@ function sndUpdateUi() {
 function sndUnlock() {
   if (SND.unlocked) return;
   const c = sndContext();
-  const mark = () => { if (c && c.state === 'running' && !SND.unlocked) { SND.unlocked = true; sndUpdateUi(); } };
+  const mark = () => {
+    if (c && c.state === 'running' && !SND.unlocked) {
+      SND.unlocked = true; sndUpdateUi();
+      const w = SND.pending; SND.pending = null;           // suara yang tertahan karena belum ada ketukan
+      if (w === 'dup') setTimeout(speakDuplikat, 50); else if (w === 'ok') setTimeout(speakAbsen, 50);
+    }
+  };
   if (c) {
     mark();
     try { c.resume().then(mark).catch(() => {}); } catch (e) { /* abaikan */ }
@@ -2216,6 +2222,10 @@ function speakFallback(text, b64) {
 /** Suara "Sudah diterima." saat orang yang sudah absen hari ini memindai wajah lagi */
 function speakDuplikat() {
   const c = sndContext();
+  if (!SND.unlocked && (!c || c.state !== 'running')) {
+    SND.pending = 'dup';
+    try { toast('Ketuk layar', 'Ketuk layar sekali agar suara "Sudah diterima" bisa berbunyi.', 'warning'); } catch (e) { /* abaikan */ }
+  }
   let ran = false;
   const run = () => {
     if (ran) return;
