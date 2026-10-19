@@ -2122,7 +2122,7 @@ function sndUnlock() {
   const mark = () => {
     if (c && c.state === 'running' && !SND.unlocked) {
       SND.unlocked = true; sndUpdateUi();
-      const w = SND.pending; SND.pending = null;           // suara yang tertahan karena belum ada ketukan
+      const w = (Date.now() - (SND.pendingAt || 0) < 20000) ? SND.pending : null; SND.pending = null;           // suara yang tertahan karena belum ada ketukan
       if (w === 'dup') setTimeout(speakDuplikat, 50); else if (w === 'ok') setTimeout(speakAbsen, 50);
     }
   };
@@ -2223,7 +2223,7 @@ function speakFallback(text, b64) {
 function speakDuplikat() {
   const c = sndContext();
   if (!SND.unlocked && (!c || c.state !== 'running')) {
-    SND.pending = 'dup';
+    SND.pending = 'dup'; SND.pendingAt = Date.now();
     try { toast('Ketuk layar', 'Ketuk layar sekali agar suara "Sudah diterima" bisa berbunyi.', 'warning'); } catch (e) { /* abaikan */ }
   }
   let ran = false;
@@ -2241,6 +2241,7 @@ function speakDuplikat() {
 
 function speakAbsen() {
   const c = sndContext();
+  if (!SND.unlocked && (!c || c.state !== 'running')) SND.pending = 'ok'; SND.pendingAt = Date.now();   // diputar begitu layar diketuk
   let ran = false;
   const run = () => {
     if (ran) return;
@@ -2536,7 +2537,7 @@ async function kioskLoop() {
           K.stable++;
           const since = Date.now() - K.identAt;
           if (!K.identBusy && K.stable >= 2 && since > 1200 && (K.identCount < 2 || since > 6000)) identifyFace(det);
-          if ($('kAuto').checked && K.ident && !K.ident.sudah && K.identCount >= 2 && !K.needLeave && K.stable >= 3) await kioskSubmit(det);
+          if ($('kAuto').checked && K.ident && !K.ident.sudah && K.identCount >= 1 && !K.needLeave && K.stable >= 3) await kioskSubmit(det);
         }
       }
     } catch (e) { /* lanjutkan pemindaian */ }
@@ -2627,7 +2628,7 @@ function showKioskResult(ok, data) {
     kStatus('Absen belum berhasil.');
     if (/sudah absen/i.test(String(data))) speakDuplikat();
   }
-  K.resultTimer = setTimeout(() => el.classList.add('d-none'), 5500);
+  K.resultTimer = setTimeout(() => el.classList.add('d-none'), ok ? 5500 : 9000);
 }
 
 // ───────── Admin: Data Wajah & pendaftaran ─────────
