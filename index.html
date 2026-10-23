@@ -1055,7 +1055,7 @@ const HOSTED = !(typeof google !== 'undefined' && google.script && google.script
 const SERVER_RE = /^https:\/\/script\.google\.com\/(a\/macros\/[^/]+\/|macros\/)s\/[A-Za-z0-9_-]+\/exec$/;
 // ▼▼ ISI SATU BARIS INI sebelum meng-upload versi hosting: URL Web App Apps Script Anda (berakhiran /exec).
 // Jika diisi, pelayan tidak perlu menempelkan URL sendiri. Dibiarkan kosong pun tetap bisa: aplikasi akan menanyakannya.
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwGCDaw35LLdkQlxWknK9Xo8PYbrIT_PESqVmkwtRsh7Vi1ZZZflxbLiC-xUccMOSlK8Q/exec';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzqprhgT1kiRBrIDeOOlqvMU-jN4i6179X9DyuI4TYcC-qV-agL8IjjYNTqsFVbBj2ZGg/exec';
 let API_URL = '';
 
 function resolveServerUrl(forcePrompt) {
@@ -2535,14 +2535,24 @@ async function kioskLoop() {
         if (!ok) { K.stable = 0; }
         else {
           K.stable++;
-          const since = Date.now() - K.identAt;
-          if (!K.identBusy && K.stable >= 2 && since > 1200 && (K.identCount < 2 || since > 6000)) identifyFace(det);
-          if ($('kAuto').checked && K.ident && !K.ident.sudah && K.identCount >= 1 && !K.needLeave && K.stable >= 3) await kioskSubmit(det);
+          // Wajah berbeda dari yang barusan diproses = orang berikutnya dalam antrean -> tidak perlu menunggu wajah sebelumnya pergi
+          try {
+            if (K.needLeave && K.lastDesc && faceapi.euclideanDistance(det.descriptor, K.lastDesc) > 0.55) {
+              K.needLeave = false; K.dupSpoken = false; K.ident = null; K.identCount = 0; K.whoMsg = ''; renderWho();
+            }
+          } catch (e) { /* abaikan */ }
+          if ($('kAuto').checked) {
+            // Mode otomatis: langsung kirim; server yang mengenali wajah (tanpa langkah "kenali dulu" yang menambah waktu tunggu)
+            if (!K.needLeave && K.stable >= 2) await kioskSubmit(det);
+          } else {
+            const since = Date.now() - K.identAt;
+            if (!K.identBusy && K.stable >= 2 && since > 1200 && (K.identCount < 2 || since > 6000)) identifyFace(det);
+          }
         }
       }
     } catch (e) { /* lanjutkan pemindaian */ }
   }
-  if (K.running) K.timer = setTimeout(kioskLoop, 500);
+  if (K.running) K.timer = setTimeout(kioskLoop, 150);
 }
 
 /** Tombol Absen (FAB): dari tab lain kembali ke tab Absen; di tab Absen mencatat absen */
@@ -2597,6 +2607,8 @@ async function handleKioskPhoto(file) {
 
 async function kioskSubmit(det, fotoDariHp) {
   K.busy = true;
+  K.lastDesc = det.descriptor;
+  K.whoMsg = 'Memproses absen...'; renderWho();
   kStatus('Memproses absen...');
   $('kRing').classList.add('ok');
   try {
@@ -2605,6 +2617,9 @@ async function kioskSubmit(det, fotoDariHp) {
     const r = await api('kioskAbsen', Array.from(det.descriptor), pos.lat, pos.lng, foto);
     showKioskResult(true, r);
     kAddLocal(r);                                   // tampil seketika di daftar & riwayat
+    if (foto && r.id) {                             // foto diunggah di latar belakang agar konfirmasi tidak menunggu Drive
+      api('kioskFoto', r.id, foto).catch(() => setTimeout(() => api('kioskFoto', r.id, foto).catch(() => {}), 4000));
+    }
     refreshKiosk().then(() => { if (K.pane === 'kPaneRiwayat') loadKioskHistory(true); });
   } catch (e) {
     showKioskResult(false, e.message);
