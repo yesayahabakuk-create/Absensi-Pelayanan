@@ -637,21 +637,22 @@ tr.clickable { cursor: pointer; }
             <button class="btn btn-outline-secondary" onclick="exportRekapExcel()"><i class="bi bi-file-earmark-excel"></i> Unduh Excel</button>
             <button class="btn btn-outline-primary ms-auto" onclick="openIbadahModal()"><i class="bi bi-gear"></i> Atur Ibadah</button>
           </div>
-          <ul class="nav nav-pills mt-3 gap-1" id="rekapTabs">
-            <li class="nav-item"><button type="button" class="nav-link active" data-rk="sheet">Tabel Ibadah</button></li>
-            <li class="nav-item"><button type="button" class="nav-link" data-rk="sum">Ringkasan per Orang</button></li>
-          </ul>
+          <div class="mt-3" id="rkFilterBox">
+            <label class="form-label small mb-1">Tabel yang ditampilkan</label>
+            <div id="rkGender" class="btn-group w-100 mb-3 flex-wrap" role="group">
+              <input type="radio" class="btn-check" name="rkG" id="rkG0" value="" checked><label class="btn btn-outline-primary" for="rkG0">Semua</label>
+              <input type="radio" class="btn-check" name="rkG" id="rkG1" value="Perempuan"><label class="btn btn-outline-primary" for="rkG1">Perempuan</label>
+              <input type="radio" class="btn-check" name="rkG" id="rkG2" value="Laki-Laki"><label class="btn btn-outline-primary" for="rkG2">Laki-Laki</label>
+            </div>
+            <div id="rkIbadahBox"><label class="form-label small mb-1">Per ibadah <span class="text-muted">(centang ibadah yang ingin ditampilkan)</span></label>
+            <div id="rkFilter" class="d-flex flex-wrap gap-2 mb-3"></div></div>
+            <label class="form-label small mb-1" for="rkJudul">Judul pada lembar (boleh diubah)</label>
+            <input type="text" id="rkJudul" class="form-control" maxlength="80">
+          </div>
         </div>
         <div id="rekapSheetBox">
           <div class="alert-soft no-print" id="rekapHint" style="display:none"></div>
           <div id="rekapSheet" class="rk-wrap"><div class="empty">Memuat data...</div></div>
-        </div>
-        <div id="rekapSumBox" style="display:none">
-          <div class="card"><div class="table-responsive"><table class="table align-middle mb-0">
-            <thead><tr><th>Nama</th><th class="text-center">Hadir</th><th class="text-center">Izin</th><th class="text-center">Sakit</th><th class="text-center">Alpa</th><th class="text-center">% Hadir</th></tr></thead>
-            <tbody id="rekapBody"></tbody>
-          </table></div></div>
-          <div class="mt-2"><button class="btn btn-sm btn-outline-secondary" onclick="exportRekapCsv()"><i class="bi bi-download"></i> Unduh CSV ringkasan</button></div>
         </div>
       </section>
 
@@ -1646,32 +1647,36 @@ async function loadRekap() {
   if (!$('rekapMonth').value) $('rekapMonth').value = localMonth();
   const m = $('rekapMonth').value;
   $('rekapSheet').innerHTML = '<div class="empty">Memuat data...</div>';
-  $('rekapBody').innerHTML = '<tr><td colspan="6" class="empty">Memuat data...</td></tr>';
   try {
-    const [mx, sm] = await Promise.all([apiT('adminRekapMatrix', m), apiT('adminRekap', m)]);
-    S.rekapMx = mx; S.rekap = sm;
-    $('rekapSheet').innerHTML = mx.groups.length ? rekapHtml(mx) : '<div class="empty">Belum ada pelayan. Tambahkan di menu Data Pelayan.</div>';
+    const mx = await apiT('adminRekapMatrix', m);
+    S.rekapMx = mx;
+    S.rkSel = null; $('rkJudul').value = mx.judul;
+    $('rkIbadahBox').style.display = mx.otomatis ? 'none' : '';
+    $('rkFilter').innerHTML = mx.ibadah.map((i) => `<label class="day-check"><input type="checkbox" value="${esc(i.id)}" checked><span>${esc(i.nama)}</span></label>`).join('');
+    drawRekap();
     const hint = $('rekapHint');
     hint.style.display = mx.otomatis ? '' : 'none';
     hint.innerHTML = '<i class="bi bi-info-circle"></i> Ibadah belum diatur, jadi semua hari pelayanan ditampilkan dalam satu kolom. Tekan <b>Atur Ibadah</b> untuk membuat kolom seperti "IBADAH PEMUDA", "IBADAH MINGGU", dst, lalu atur jenis kelamin dan ibadah tiap pelayan di Data Pelayan.';
-    $('rekapBody').innerHTML = sm.rows.length ? sm.rows.map((r) => {
-      const pct = r.hariKerja ? Math.round(r.hadir / r.hariKerja * 100) : 0;
-      return `<tr><td><b>${esc(r.Nama)}</b></td><td class="text-center"><b>${r.hadir}</b></td>
-        <td class="text-center">${r.izin}</td><td class="text-center">${r.sakit}</td><td class="text-center">${r.alpa}</td>
-        <td class="text-center" style="min-width:110px"><div class="progress" style="height:8px"><div class="progress-bar" style="width:${pct}%;background:var(--c-success)"></div></div><small>${pct}%</small></td></tr>`;
-    }).join('') : '<tr><td colspan="6" class="empty">Belum ada data.</td></tr>';
   } catch (e) { fail(e); }
 }
 
-function setRekapTab(t) {
-  document.querySelectorAll('#rekapTabs .nav-link').forEach((b) => b.classList.toggle('active', b.dataset.rk === t));
-  $('rekapSheetBox').style.display = t === 'sheet' ? '' : 'none';
-  $('rekapSumBox').style.display = t === 'sum' ? '' : 'none';
+/** Data rekap sesuai ibadah yang dicentang: hanya kolom & orang yang bertugas di ibadah tsb */
+function rekapView() {
+  const d = S.rekapMx;
+  const sel = Array.from(document.querySelectorAll('#rkFilter input:checked')).map((c) => c.value);
+  const all = d.otomatis || sel.length === d.ibadah.length;
+  const ibadah = all ? d.ibadah : d.ibadah.filter((i) => sel.includes(i.id));
+  const gsel = (document.querySelector('input[name=rkG]:checked') || {}).value || '';
+  const groups = d.groups.filter((g) => !gsel || g.gender === gsel).map((g) => ({ gender: g.gender, rows: g.rows.filter((r) => ibadah.some((i) => r.cells[i.id])) })).filter((g) => g.rows.length);
+  return Object.assign({}, d, { ibadah, groups, judul: $('rkJudul').value.trim() || d.judul });
+}
+function drawRekap() {
+  const v = rekapView();
+  $('rekapSheet').innerHTML = v.groups.length ? rekapHtml(v) : '<div class="empty">Tidak ada pelayan untuk pilihan ini. Atur jenis kelamin dan ibadah tiap pelayan di Data Pelayan.</div>';
 }
 
 function printRekap() {
-  if (!S.rekapMx || !S.rekapMx.groups.length) return toast('Perhatian', 'Tampilkan rekap terlebih dahulu.', 'warning');
-  setRekapTab('sheet');
+  if (!S.rekapMx || !rekapView().groups.length) return toast('Perhatian', 'Tidak ada data untuk dicetak.', 'warning');
   document.body.classList.add('printing-rekap');
   const done = () => { document.body.classList.remove('printing-rekap'); window.removeEventListener('afterprint', done); };
   window.addEventListener('afterprint', done);
@@ -1679,19 +1684,16 @@ function printRekap() {
 }
 
 function exportRekapExcel() {
-  if (!S.rekapMx || !S.rekapMx.groups.length) return toast('Perhatian', 'Tampilkan rekap terlebih dahulu.', 'warning');
-  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"><style>${RK_STYLE}</style></head><body>${rekapHtml(S.rekapMx)}</body></html>`;
+  if (!S.rekapMx || !rekapView().groups.length) return toast('Perhatian', 'Tidak ada data untuk diunduh.', 'warning');
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"><style>${RK_STYLE}</style></head><body>${rekapHtml(rekapView())}</body></html>`;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(['﻿' + html], { type: 'application/vnd.ms-excel;charset=utf-8' }));
-  a.download = `absensi-${S.rekapMx.month}.xls`;
+  const gs = (document.querySelector('input[name=rkG]:checked') || {}).value || '';
+  const ibs = Array.from(document.querySelectorAll('#rkFilter input')); const ibSel = ibs.filter((c) => c.checked);
+  const tag = (gs ? '-' + gs.toLowerCase() : '') + (ibs.length && ibSel.length < ibs.length ? '-' + ibSel.map((c) => c.nextElementSibling.textContent).join('+').toLowerCase().replace(/[^a-z0-9+]+/g, '') : '');
+  a.download = `absensi-${S.rekapMx.month}${tag}.xls`;
   document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
-}
-
-function exportRekapCsv() {
-  if (!S.rekap || !S.rekap.rows.length) return toast('Perhatian', 'Tampilkan rekap terlebih dahulu.', 'warning');
-  downloadCsv(`rekap-${S.rekap.month}.csv`, [['Nama', 'Hadir', 'Izin', 'Sakit', 'Alpa', 'Hari Kerja']]
-    .concat(S.rekap.rows.map((r) => [r.Nama, r.hadir, r.izin, r.sakit, r.alpa, r.hariKerja])));
 }
 
 // ── Pengaturan ibadah ──
@@ -2098,18 +2100,21 @@ function makeThumb(source, box) {
 function detectFace(video) {
   return faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.5 })).withFaceLandmarks().withFaceDescriptor();
 }
+/** Deteksi CEPAT (hanya kotak wajah, tanpa landmark & descriptor) untuk pemantauan terus-menerus */
+const FAST_OPTS = () => new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 });
+function detectFaceFast(video) { return faceapi.detectSingleFace(video, FAST_OPTS()); }
 
 /** Wajah dianggap layak bila berada di tengah lingkaran dan berukuran cukup */
 function faceOk(det, video) {
   if (!det) return false;
-  const b = det.detection.box, vw = video.videoWidth, vh = video.videoHeight;
+  const b = (det.detection || det).box, vw = video.videoWidth, vh = video.videoHeight;
   const cx = b.x + b.width / 2, cy = b.y + b.height / 2;
   return Math.abs(cx - vw / 2) < vw * 0.2 && Math.abs(cy - vh / 2) < vh * 0.22 && b.width > vw * 0.28 && b.width < vw * 0.85;
 }
 
 /** Ambil bingkai video -> JPEG kecil bercap waktu */
 function snapFrame(video) {
-  const vw = video.videoWidth, vh = video.videoHeight, scale = Math.min(1, 640 / Math.max(vw, vh));
+  const vw = video.videoWidth, vh = video.videoHeight, scale = Math.min(1, 480 / Math.max(vw, vh));
   const cv = document.createElement('canvas');
   cv.width = Math.round(vw * scale); cv.height = Math.round(vh * scale);
   const ctx = cv.getContext('2d');
@@ -2360,6 +2365,11 @@ async function openKioskInner() {
     $('kRetry').classList.remove('d-none');
     return;
   }
+  if (K.stream) {                     // pemanasan: inferensi pertama lambat (kompilasi WebGL), lakukan sekarang
+    kStatus('Menyiapkan pengenal wajah...');
+    try { await detectFaceFast($('kVideo')); await detectFace($('kVideo')); } catch (e) { /* abaikan */ }
+    if (!K.running) return;
+  }
   K.engineReady = true;
   K.whoMsg = K.noLive ? 'Ketuk Absen untuk memotret wajah' : ''; renderWho();
   $('kPhone').disabled = false;
@@ -2477,19 +2487,21 @@ async function identifyFace(det) {
   }
 }
 
-/** Loop deteksi: memantau wajah, mengenali nama, dan (jika Otomatis) mencatat absen */
+/** Loop deteksi: pantau wajah dengan deteksi ringan; descriptor hanya dihitung saat wajah sudah mantap.
+ *  Mode Otomatis: wajah mantap 2 bingkai -> langsung 1 panggilan server (kenali + catat). */
 async function kioskLoop() {
   if (!K.running) return;
+  let wait = 120;
   if (!K.busy && K.stream && K.engineReady) {
     try {
       const video = $('kVideo');
-      const det = await detectFace(video);
+      const fast = await detectFaceFast(video);
       if (!K.running) return;
-      const ok = faceOk(det, video);
+      const ok = faceOk(fast, video);
       $('kRing').classList.toggle('ok', ok);
-      if (!det) {
+      if (!fast) {
         K.noFace++; K.stable = 0;
-        if (K.noFace >= 2) {
+        if (K.noFace >= 3) {
           K.needLeave = false;
           if (K.ident || K.whoMsg) { K.ident = null; K.identCount = 0; K.whoMsg = ''; renderWho(); }
         }
@@ -2498,14 +2510,22 @@ async function kioskLoop() {
         if (!ok) { K.stable = 0; }
         else {
           K.stable++;
-          const since = Date.now() - K.identAt;
-          if (!K.identBusy && K.stable >= 2 && since > 1200 && (K.identCount < 2 || since > 6000)) identifyFace(det);
-          if ($('kAuto').checked && K.ident && !K.ident.sudah && K.identCount >= 2 && !K.needLeave && K.stable >= 3) await kioskSubmit(det);
+          const auto = $('kAuto').checked;
+          if (K.stable >= 2 && !K.needLeave && Date.now() >= (K.retryAt || 0)) {
+            if (auto) {
+              const det = await detectFace(video);                 // descriptor hanya sekali, saat siap dikirim
+              if (det && K.running && faceOk(det, video)) await kioskSubmit(det);
+              else K.stable = 0;
+            } else if (!K.identBusy && Date.now() - K.identAt > 1500 && !K.ident) {
+              const det = await detectFace(video);
+              if (det && K.running) identifyFace(det);             // hanya pratinjau nama saat mode manual
+            }
+          }
         }
       }
-    } catch (e) { /* lanjutkan pemindaian */ }
-  }
-  if (K.running) K.timer = setTimeout(kioskLoop, 500);
+    } catch (e) { wait = 300; /* lanjutkan pemindaian */ }
+  } else wait = 300;
+  if (K.running) K.timer = setTimeout(kioskLoop, wait);
 }
 
 /** Tombol Absen (FAB): dari tab lain kembali ke tab Absen; di tab Absen mencatat absen */
@@ -2559,6 +2579,7 @@ async function handleKioskPhoto(file) {
 }
 
 async function kioskSubmit(det, fotoDariHp) {
+  let retry = false;
   K.busy = true;
   kStatus('Memproses absen...');
   $('kRing').classList.add('ok');
@@ -2569,9 +2590,12 @@ async function kioskSubmit(det, fotoDariHp) {
     showKioskResult(true, r);
     refreshKiosk();
   } catch (e) {
+    // wajah belum jelas (bergerak/buram): coba lagi otomatis sebentar lagi, tanpa harus menjauh dari kamera
+    retry = /tidak dikenali|belum dapat dipastikan/i.test(String(e.message));
+    K.retryAt = retry ? Date.now() + 1800 : 0;
     showKioskResult(false, e.message);
   } finally {
-    K.busy = false; K.needLeave = true; K.stable = 0; K.ident = null; K.identCount = 0; K.whoMsg = ''; renderWho();
+    K.busy = false; K.needLeave = !retry; K.stable = 0; K.ident = null; K.identCount = 0; K.whoMsg = ''; renderWho();
   }
 }
 
@@ -2729,7 +2753,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   $('plyAll').addEventListener('change', (e) => { document.querySelectorAll('.ply-check').forEach((c) => { c.checked = e.target.checked; }); updateDelBtn(); });
   $('plyBody').addEventListener('change', (e) => { if (e.target.classList.contains('ply-check')) updateDelBtn(); });
   $('rekapMonth').addEventListener('change', loadRekap);
-  $('rekapTabs').addEventListener('click', (e) => { const b = e.target.closest('[data-rk]'); if (b) setRekapTab(b.dataset.rk); });
+  $('rkGender').addEventListener('change', drawRekap);
+  $('rkFilter').addEventListener('change', drawRekap);
+  $('rkJudul').addEventListener('input', drawRekap);
   $('formGroup').addEventListener('submit', onGroupSave);
   $('formIbadah').addEventListener('submit', onIbadahSave);
   $('riwayatMonth').addEventListener('change', loadRiwayat);
