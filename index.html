@@ -858,7 +858,9 @@ tr.clickable { cursor: pointer; }
         <select id="kWaNama" class="form-select mb-2"></select>
         <label class="form-label small mb-1" for="kWaJenis">Keterangan</label>
         <select id="kWaJenis" class="form-select"><option value="Sakit">Sakit</option><option value="Izin">Izin tidak hadir</option></select>
-        <div class="form-text mt-2">Pengajuan dicatat (menunggu persetujuan admin), lalu WhatsApp terbuka ke admin. Lengkapi alasan di pesan dan tekan kirim.</div>
+        <label class="form-label small mb-1 mt-2" for="kWaAlasan">Alasan</label>
+        <input type="text" id="kWaAlasan" class="form-control" maxlength="90" placeholder="Contoh: demam, istirahat di rumah">
+        <div class="form-text mt-2">Pengajuan dicatat (menunggu persetujuan admin), lalu WhatsApp terbuka ke admin. Alasan Anda ikut terisi di pesan, tinggal tekan kirim.</div>
       </div>
       <div class="modal-footer"><button type="button" class="btn w-100" style="background:#25d366;color:#fff" onclick="kioskWaSend()"><i class="bi bi-whatsapp"></i> Lanjut ke WhatsApp</button></div>
     </div></div>
@@ -1001,7 +1003,7 @@ const HOSTED = !(typeof google !== 'undefined' && google.script && google.script
 const SERVER_RE = /^https:\/\/script\.google\.com\/(a\/macros\/[^/]+\/|macros\/)s\/[A-Za-z0-9_-]+\/exec$/;
 // ▼▼ ISI SATU BARIS INI sebelum meng-upload versi hosting: URL Web App Apps Script Anda (berakhiran /exec).
 // Jika diisi, pelayan tidak perlu menempelkan URL sendiri. Dibiarkan kosong pun tetap bisa: aplikasi akan menanyakannya.
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbw5SBpF6gfSQR_MoQ4KeADDAxWz0Mm_V5-SApfEnIAf-zi-F6G65_etxnuJ5pUsU-ZuqA/exec';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbw726OjuHUxrXATM8aDvPSWZJ-z5oToFVlkHULEkKYylGs39J80p2e1Ikm475__RfD2dQ/exec';
 let API_URL = '';
 
 function resolveServerUrl(forcePrompt) {
@@ -2492,12 +2494,15 @@ function kioskWaSend() {
   const id = $('kWaNama').value, jenis = $('kWaJenis').value;
   if (!K.wa) return;
   if (!id) return toast('Perhatian', 'Pilih nama Anda terlebih dahulu.', 'warning');
+  const alasan = $('kWaAlasan').value.trim().replace(/\s+/g, ' ');
+  if (alasan.length < 5) return toast('Perhatian', 'Tulis alasan Anda (minimal 5 huruf).', 'warning');
   const nama = $('kWaNama').selectedOptions[0].textContent;
   const isi = jenis === 'Sakit' ? 'izin tidak hadir karena sakit' : 'izin tidak hadir';
-  const teks = `Shalom, saya ${nama} mohon ${isi} pada ${fmtDate(K.waDate)}. Alasan: `;
+  const teks = `Shalom, saya ${nama} mohon ${isi} pada ${fmtDate(K.waDate)}. Alasan: ${alasan}`;
   window.open('https://wa.me/' + K.wa + '?text=' + encodeURIComponent(teks), '_blank');   // dibuka langsung agar tidak diblokir browser
   bootstrap.Modal.getOrCreateInstance($('kWaModal')).hide();
-  api('kioskIzin', id, jenis)
+  $('kWaAlasan').value = '';
+  api('kioskIzin', id, jenis, alasan)
     .then((r) => toast('Berhasil', r.sudah ? 'Pengajuan Anda hari ini sudah tercatat (' + r.status + ').' : 'Pengajuan ' + jenis.toLowerCase() + ' tercatat, menunggu persetujuan admin.', 'success'))
     .catch((e) => toast('Pengajuan belum tercatat', e.message, 'danger'));
 }
@@ -2854,4 +2859,4 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 </script>
 </body>
-</html>
+</html>url
