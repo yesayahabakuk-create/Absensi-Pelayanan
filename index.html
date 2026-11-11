@@ -416,16 +416,8 @@ tr.clickable { cursor: pointer; }
             <a href="#" id="kRetry" class="small d-none" onclick="retryKiosk();return false;"><i class="bi bi-arrow-repeat"></i> Coba nyalakan kamera lagi</a>
           </div>
 
-          <div class="card p-3 mt-3 d-none" id="kWaBox">
-            <h6 class="card-title mb-2"><i class="bi bi-whatsapp" style="color:#25d366"></i> Tidak bisa hadir?</h6>
-            <label class="form-label small mb-1" for="kWaNama">Nama Anda</label>
-            <select id="kWaNama" class="form-select mb-2"></select>
-            <div class="d-flex gap-2">
-              <button type="button" class="btn flex-fill" style="background:#25d366;color:#fff" onclick="kioskWa('Sakit')"><i class="bi bi-whatsapp"></i> Sakit</button>
-              <button type="button" class="btn flex-fill" style="background:#25d366;color:#fff" onclick="kioskWa('Izin')"><i class="bi bi-whatsapp"></i> Izin</button>
-            </div>
-            <div class="form-text">WhatsApp akan terbuka ke admin dengan pesan yang sudah terisi.</div>
-          </div>
+          <button type="button" id="kWaFab" class="d-none" onclick="kioskWaOpen()" aria-label="Izin / Sakit via WhatsApp" title="Izin / Sakit via WhatsApp"
+            style="position:fixed;right:16px;bottom:96px;width:58px;height:58px;border-radius:50%;border:0;background:#25d366;color:#fff;font-size:1.9rem;display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.3);z-index:1031"><i class="bi bi-whatsapp"></i></button>
 
           <div class="card p-3 mt-3">
             <div class="d-flex align-items-center mb-2"><h6 class="card-title mb-0 me-auto">Absensi Hari Ini</h6><span class="badge bg-secondary" id="kCount">0</span></div>
@@ -857,6 +849,21 @@ tr.clickable { cursor: pointer; }
     </div>
   </div>
 
+  <!-- Izin / sakit via WhatsApp (kiosk) -->
+  <div class="modal fade" id="kWaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h6 class="modal-title"><i class="bi bi-whatsapp" style="color:#25d366"></i> Tidak bisa hadir?</h6><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div>
+      <div class="modal-body">
+        <label class="form-label small mb-1" for="kWaNama">Nama Anda</label>
+        <select id="kWaNama" class="form-select mb-2"></select>
+        <label class="form-label small mb-1" for="kWaJenis">Keterangan</label>
+        <select id="kWaJenis" class="form-select"><option value="Sakit">Sakit</option><option value="Izin">Izin tidak hadir</option></select>
+        <div class="form-text mt-2">Pengajuan dicatat (menunggu persetujuan admin), lalu WhatsApp terbuka ke admin. Lengkapi alasan di pesan dan tekan kirim.</div>
+      </div>
+      <div class="modal-footer"><button type="button" class="btn w-100" style="background:#25d366;color:#fff" onclick="kioskWaSend()"><i class="bi bi-whatsapp"></i> Lanjut ke WhatsApp</button></div>
+    </div></div>
+  </div>
+
   <!-- Atur ibadah untuk rekap -->
   <div class="modal fade" id="ibadahModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
@@ -994,7 +1001,7 @@ const HOSTED = !(typeof google !== 'undefined' && google.script && google.script
 const SERVER_RE = /^https:\/\/script\.google\.com\/(a\/macros\/[^/]+\/|macros\/)s\/[A-Za-z0-9_-]+\/exec$/;
 // ▼▼ ISI SATU BARIS INI sebelum meng-upload versi hosting: URL Web App Apps Script Anda (berakhiran /exec).
 // Jika diisi, pelayan tidak perlu menempelkan URL sendiri. Dibiarkan kosong pun tetap bisa: aplikasi akan menanyakannya.
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzryd4Azqg1pzvPmuV6XlJyYXIvDESBCXdWF55KiNlZ6fgeozq1228JXHnSkSriWnw95g/exec';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbw5SBpF6gfSQR_MoQ4KeADDAxWz0Mm_V5-SApfEnIAf-zi-F6G65_etxnuJ5pUsU-ZuqA/exec';
 let API_URL = '';
 
 function resolveServerUrl(forcePrompt) {
@@ -2464,7 +2471,7 @@ async function kioskPosition() {
   return getPosition();
 }
 
-/** Tombol izin/sakit via WhatsApp (kiosk): nomor admin disimpan di Pengaturan */
+/** Izin/sakit via WhatsApp (kiosk): catat pengajuan (Menunggu) + buka WhatsApp admin */
 function waNumber(raw) {
   let n = String(raw || '').replace(/\D/g, '');
   if (n.startsWith('0')) n = '62' + n.substring(1);
@@ -2472,21 +2479,27 @@ function waNumber(raw) {
   return n;
 }
 function renderKioskWa(d) {
-  const box = $('kWaBox'); if (!box) return;
+  const fab = $('kWaFab'); if (!fab) return;
   K.wa = waNumber(d.wa); K.waDate = d.tanggal;
-  const names = (d.staff || []).map((s) => s.nama);
   const sel = $('kWaNama'), cur = sel.value;
-  sel.innerHTML = '<option value="">— pilih nama —</option>' + names.map((n) => `<option>${esc(n)}</option>`).join('');
-  if (names.includes(cur)) sel.value = cur;
-  box.classList.toggle('d-none', !K.wa);
+  const staff = d.staff || [];
+  sel.innerHTML = '<option value="">— pilih nama —</option>' + staff.map((s) => `<option value="${esc(s.id)}">${esc(s.nama)}</option>`).join('');
+  if (staff.some((s) => s.id === cur)) sel.value = cur;
+  fab.classList.toggle('d-none', !K.wa);
 }
-function kioskWa(jenis) {
-  const nama = $('kWaNama').value;
+function kioskWaOpen() { bootstrap.Modal.getOrCreateInstance($('kWaModal')).show(); }
+function kioskWaSend() {
+  const id = $('kWaNama').value, jenis = $('kWaJenis').value;
   if (!K.wa) return;
-  if (!nama) return toast('Perhatian', 'Pilih nama Anda terlebih dahulu.', 'warning');
+  if (!id) return toast('Perhatian', 'Pilih nama Anda terlebih dahulu.', 'warning');
+  const nama = $('kWaNama').selectedOptions[0].textContent;
   const isi = jenis === 'Sakit' ? 'izin tidak hadir karena sakit' : 'izin tidak hadir';
   const teks = `Shalom, saya ${nama} mohon ${isi} pada ${fmtDate(K.waDate)}. Alasan: `;
-  window.open('https://wa.me/' + K.wa + '?text=' + encodeURIComponent(teks), '_blank');
+  window.open('https://wa.me/' + K.wa + '?text=' + encodeURIComponent(teks), '_blank');   // dibuka langsung agar tidak diblokir browser
+  bootstrap.Modal.getOrCreateInstance($('kWaModal')).hide();
+  api('kioskIzin', id, jenis)
+    .then((r) => toast('Berhasil', r.sudah ? 'Pengajuan Anda hari ini sudah tercatat (' + r.status + ').' : 'Pengajuan ' + jenis.toLowerCase() + ' tercatat, menunggu persetujuan admin.', 'success'))
+    .catch((e) => toast('Pengajuan belum tercatat', e.message, 'danger'));
 }
 
 async function refreshKiosk() {
