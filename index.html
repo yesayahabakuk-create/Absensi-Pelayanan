@@ -416,6 +416,17 @@ tr.clickable { cursor: pointer; }
             <a href="#" id="kRetry" class="small d-none" onclick="retryKiosk();return false;"><i class="bi bi-arrow-repeat"></i> Coba nyalakan kamera lagi</a>
           </div>
 
+          <div class="card p-3 mt-3 d-none" id="kWaBox">
+            <h6 class="card-title mb-2"><i class="bi bi-whatsapp" style="color:#25d366"></i> Tidak bisa hadir?</h6>
+            <label class="form-label small mb-1" for="kWaNama">Nama Anda</label>
+            <select id="kWaNama" class="form-select mb-2"></select>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn flex-fill" style="background:#25d366;color:#fff" onclick="kioskWa('Sakit')"><i class="bi bi-whatsapp"></i> Sakit</button>
+              <button type="button" class="btn flex-fill" style="background:#25d366;color:#fff" onclick="kioskWa('Izin')"><i class="bi bi-whatsapp"></i> Izin</button>
+            </div>
+            <div class="form-text">WhatsApp akan terbuka ke admin dengan pesan yang sudah terisi.</div>
+          </div>
+
           <div class="card p-3 mt-3">
             <div class="d-flex align-items-center mb-2"><h6 class="card-title mb-0 me-auto">Absensi Hari Ini</h6><span class="badge bg-secondary" id="kCount">0</span></div>
             <div id="kToday"><div class="empty">Memuat...</div></div>
@@ -571,6 +582,9 @@ tr.clickable { cursor: pointer; }
                 <label class="form-label small mt-3" for="suaraPesan"><i class="bi bi-volume-up"></i> Pesan suara saat absen berhasil</label>
                 <input type="text" id="suaraPesan" class="form-control" maxlength="100" placeholder="Absen diterima. Terima kasih.">
                 <div class="form-text">Dibacakan otomatis oleh HP/komputer. Kosongkan untuk mematikan suara.</div>
+                <label class="form-label small mt-3" for="waAdmin"><i class="bi bi-whatsapp"></i> Nomor WhatsApp admin (untuk izin / sakit)</label>
+                <input type="tel" id="waAdmin" class="form-control" maxlength="20" placeholder="08xxxxxxxxxx">
+                <div class="form-text">Pelayan menekan tombol Sakit/Izin di layar absen wajah, lalu WhatsApp terbuka ke nomor ini. Kosongkan untuk menyembunyikan tombol.</div>
               </div>
             </div>
             <div class="col-lg-6">
@@ -1487,7 +1501,7 @@ function exportPelayanCsv() {
 // BAGIAN 7: ADMIN — WAKTU & LOKASI
 // ════════════════════════════════════════════════════════
 
-const SET_FIELDS = ['fotoMode', 'suaraPesan', 'ciOpen', 'ciClose', 'ciNama', 'ciLat', 'ciLng', 'ciRadius'];
+const SET_FIELDS = ['fotoMode', 'suaraPesan', 'waAdmin', 'ciOpen', 'ciClose', 'ciNama', 'ciLat', 'ciLng', 'ciRadius'];
 const HARI_URUT = [1, 2, 3, 4, 5, 6, 0];
 
 async function loadSettings() {
@@ -2026,7 +2040,7 @@ function loadFaceEngine() {
 
 async function openCam(video, facing) {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('Browser tidak mendukung kamera. Gunakan Chrome/Safari terbaru lewat HTTPS.');
-  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: facing || 'user' }, width: { ideal: 960 }, height: { ideal: 960 } }, audio: false });
+  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: facing || 'user' }, width: { ideal: 640 }, height: { ideal: 640 } }, audio: false });
   video.srcObject = stream;
   await video.play();
   return stream;
@@ -2102,6 +2116,10 @@ function detectFace(video) {
 }
 /** Deteksi CEPAT (hanya kotak wajah, tanpa landmark & descriptor) untuk pemantauan terus-menerus */
 const FAST_OPTS = () => new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 });
+/** Deteksi + descriptor dalam satu langkah pada ukuran ringan (untuk loop kiosk); akurasi descriptor tetap sama */
+function detectFaceQuick(video) {
+  return faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 256, scoreThreshold: 0.5 })).withFaceLandmarks().withFaceDescriptor();
+}
 function detectFaceFast(video) { return faceapi.detectSingleFace(video, FAST_OPTS()); }
 
 /** Wajah dianggap layak bila berada di tengah lingkaran dan berukuran cukup */
@@ -2109,7 +2127,7 @@ function faceOk(det, video) {
   if (!det) return false;
   const b = (det.detection || det).box, vw = video.videoWidth, vh = video.videoHeight;
   const cx = b.x + b.width / 2, cy = b.y + b.height / 2;
-  return Math.abs(cx - vw / 2) < vw * 0.2 && Math.abs(cy - vh / 2) < vh * 0.22 && b.width > vw * 0.28 && b.width < vw * 0.85;
+  return Math.abs(cx - vw / 2) < vw * 0.25 && Math.abs(cy - vh / 2) < vh * 0.27 && b.width > vw * 0.22 && b.width < vw * 0.9;
 }
 
 /** Ambil bingkai video -> JPEG kecil bercap waktu */
@@ -2367,7 +2385,7 @@ async function openKioskInner() {
   }
   if (K.stream) {                     // pemanasan: inferensi pertama lambat (kompilasi WebGL), lakukan sekarang
     kStatus('Menyiapkan pengenal wajah...');
-    try { await detectFaceFast($('kVideo')); await detectFace($('kVideo')); } catch (e) { /* abaikan */ }
+    try { await detectFaceFast($('kVideo')); await detectFaceQuick($('kVideo')); await detectFace($('kVideo')); } catch (e) { /* abaikan */ }
     if (!K.running) return;
   }
   K.engineReady = true;
@@ -2446,13 +2464,38 @@ async function kioskPosition() {
   return getPosition();
 }
 
+/** Tombol izin/sakit via WhatsApp (kiosk): nomor admin disimpan di Pengaturan */
+function waNumber(raw) {
+  let n = String(raw || '').replace(/\D/g, '');
+  if (n.startsWith('0')) n = '62' + n.substring(1);
+  else if (n.startsWith('8')) n = '62' + n;
+  return n;
+}
+function renderKioskWa(d) {
+  const box = $('kWaBox'); if (!box) return;
+  K.wa = waNumber(d.wa); K.waDate = d.tanggal;
+  const names = (d.staff || []).map((s) => s.nama);
+  const sel = $('kWaNama'), cur = sel.value;
+  sel.innerHTML = '<option value="">— pilih nama —</option>' + names.map((n) => `<option>${esc(n)}</option>`).join('');
+  if (names.includes(cur)) sel.value = cur;
+  box.classList.toggle('d-none', !K.wa);
+}
+function kioskWa(jenis) {
+  const nama = $('kWaNama').value;
+  if (!K.wa) return;
+  if (!nama) return toast('Perhatian', 'Pilih nama Anda terlebih dahulu.', 'warning');
+  const isi = jenis === 'Sakit' ? 'izin tidak hadir karena sakit' : 'izin tidak hadir';
+  const teks = `Shalom, saya ${nama} mohon ${isi} pada ${fmtDate(K.waDate)}. Alasan: `;
+  window.open('https://wa.me/' + K.wa + '?text=' + encodeURIComponent(teks), '_blank');
+}
+
 async function refreshKiosk() {
   try {
     const d = await api('kioskInfo');
     S.tz = d.timezone; S.offset = d.epoch - Date.now();
     K.locs = d.locs || [];
     if (typeof d.suara === 'string') V.text = d.suara;
-    renderGeoChip(); updateKioskClock();
+    renderGeoChip(); updateKioskClock(); renderKioskWa(d);
     $('kCount').textContent = `${d.hadir}/${d.total}`;
     $('kToday').innerHTML = d.rows.length ? d.rows.map((r) => `<div class="k-item"><div class="k-avatar">${esc(r.nama.charAt(0).toUpperCase())}</div>
       <div class="k-meta"><b>${esc(r.nama)}</b><small>${fmtDate(d.tanggal)}</small></div><span class="k-time">${hhmm(r.waktu)}</span></div>`).join('')
@@ -2491,7 +2534,7 @@ async function identifyFace(det) {
  *  Mode Otomatis: wajah mantap 2 bingkai -> langsung 1 panggilan server (kenali + catat). */
 async function kioskLoop() {
   if (!K.running) return;
-  let wait = 120;
+  let wait = 40;
   if (!K.busy && K.stream && K.engineReady) {
     try {
       const video = $('kVideo');
@@ -2513,11 +2556,11 @@ async function kioskLoop() {
           const auto = $('kAuto').checked;
           if (K.stable >= 2 && !K.needLeave && Date.now() >= (K.retryAt || 0)) {
             if (auto) {
-              const det = await detectFace(video);                 // descriptor hanya sekali, saat siap dikirim
+              const det = await detectFaceQuick(video);            // descriptor hanya sekali, saat siap dikirim
               if (det && K.running && faceOk(det, video)) await kioskSubmit(det);
               else K.stable = 0;
             } else if (!K.identBusy && Date.now() - K.identAt > 1500 && !K.ident) {
-              const det = await detectFace(video);
+              const det = await detectFaceQuick(video);
               if (det && K.running) identifyFace(det);             // hanya pratinjau nama saat mode manual
             }
           }
@@ -2586,8 +2629,9 @@ async function kioskSubmit(det, fotoDariHp) {
   try {
     const foto = fotoDariHp || snapFrame($('kVideo'));
     const pos = await kioskPosition();
-    const r = await api('kioskAbsen', Array.from(det.descriptor), pos.lat, pos.lng, foto);
+    const r = await api('kioskAbsen', Array.from(det.descriptor), pos.lat, pos.lng, foto ? 'DEFER' : '', true);   // catat dulu, foto menyusul
     showKioskResult(true, r);
+    if (foto && r.id) api('kioskFoto', r.id, foto).catch(() => { /* foto gagal diunggah: absen tetap tercatat */ });
     refreshKiosk();
   } catch (e) {
     // wajah belum jelas (bergerak/buram): coba lagi otomatis sebentar lagi, tanpa harus menjauh dari kamera
